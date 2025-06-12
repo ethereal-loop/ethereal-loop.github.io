@@ -1,0 +1,3 @@
+[submodule "ethereal-data"]
+	path = ethereal-data
+	url = git@github.com:matan-h/Ethereal-data.git

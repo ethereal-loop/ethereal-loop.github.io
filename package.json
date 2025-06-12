@@ -1,0 +1,19 @@
+{
+  "name": "site",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm prebuild && vite",
+    "build": "pnpm prebuild && tsc && vite build",
+    "preview": "vite preview",
+    "prebuild": "node scripts/prebuild.cjs"
+  },
+  "devDependencies": {
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5"
+  },
+  "dependencies": {
+    "fs-extra": "^11.3.0"
+  }
+}
