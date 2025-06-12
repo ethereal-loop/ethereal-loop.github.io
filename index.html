@@ -9,14 +9,48 @@
 </head>
 
 <body>
-  <div id="app">
-    <div id="controls">
-      <button id="prevBtn">Prev</button>
-      <button id="nextBtn">Next</button>
-      <button id="randomBtn">Random</button>
-    </div>
-    <iframe id="viewer" src=""></iframe>
+  <div id="play-overlay">
+    <button id="playBtn" title="Play">
+      <svg xmlns="http://www.w3.org/2000/svg" height="100" viewBox="0 0 24 24" width="100" fill="currentColor">
+        <path d="M8 5v14l11-7z" />
+        <path d="M0 0h24v24H0z" fill="none" />
+      </svg>
+    </button>
+  </div>
 
+  <div id="about-modal" class="hidden">
+    <div class="modal-content">
+      <button id="closeAboutBtn" title="Close">&times;</button>
+      <h2>About</h2>
+      <p id="animation-info"></p>
+      <p id="music-credit"></p>
+    </div>
+  </div>
+
+  <div id="app">
+    <iframe id="viewer" src=""></iframe>
+    <div id="controls" class="hidden">
+      <button id="prevBtn" title="Previous">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="currentColor">
+          <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+        </svg>
+      </button>
+      <button id="nextBtn" title="Next">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="currentColor">
+          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+        </svg>
+      </button>
+      <button id="randomBtn" title="Random">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="currentColor">
+          <path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z" />
+        </svg>
+      </button>
+      <button id="aboutBtn" title="About">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="currentColor">
+          <path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
+        </svg>
+      </button>
+    </div>
   </div>
   <script type="module" src="/src/main.ts"></script>
 </body>
