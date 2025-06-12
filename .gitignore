@@ -25,4 +25,6 @@ dist-ssr
 
 t.py
 public/data
-public/animations.json
+public/data.min.json
+nouns.list
+/public/data.json

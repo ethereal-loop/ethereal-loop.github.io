@@ -11,6 +11,9 @@ importers:
       fs-extra:
         specifier: ^11.3.0
         version: 11.3.0
+      hash-wasm:
+        specifier: ^4.12.0
+        version: 4.12.0
     devDependencies:
       typescript:
         specifier: ~5.8.3
@@ -299,6 +302,9 @@ packages:
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
 
+  hash-wasm@4.12.0:
+    resolution: {integrity: sha512-+/2B2rYLb48I/evdOIhP+K/DD2ca2fgBjp6O+GBEnCDk2e4rpeXIK8GvIyRPjTezgmWn9gmKwkQjjx6BtqDHVQ==}
+
   jsonfile@6.1.0:
     resolution: {integrity: sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==}
 
@@ -561,6 +567,8 @@ snapshots:
     optional: true
 
   graceful-fs@4.2.11: {}
+
+  hash-wasm@4.12.0: {}
 
   jsonfile@6.1.0:
     dependencies:

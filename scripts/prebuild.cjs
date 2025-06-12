@@ -13,11 +13,18 @@ fs.copySync(sourceDir, destDir);
 
 console.log('Animations copied.');
 
-const files = fs.readdirSync(destDir)
-  .filter(file => file.endsWith('.html'))
-  .sort();
+// todo: verify, minify.
+fs.copySync(
+path.join(__dirname, '..', 'data.json'),
+path.join(__dirname, '..', 'public','data.json'),
+)
+// write index.json
+// const files = fs.readdirSync(destDir)
+//   .filter(file => file.endsWith('.html'))
+//   .sort();
 
-fs.writeFileSync(
-  path.join(destDir, '..', 'animations.json'),
-  JSON.stringify(files, null, 2)
-);
+
+// fs.writeFileSync(
+//   path.join(destDir, '..', 'index.json'),
+//   JSON.stringify(files, null, 2)
+// );
