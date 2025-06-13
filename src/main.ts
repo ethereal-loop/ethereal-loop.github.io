@@ -1,295 +1,279 @@
 import "./style.css";
 import { buildMusicUrl, getURL } from "./utils";
-import { addFavorite, getFavorites, isFavorite, removeFavorite } from "./favorites";
+import * as Favorites from "./favorites";
 
+import { UIManager } from "./uiManager";
+import { AnimationManager } from "./animationManager";
+import { Navigation } from "./navigation";
+import { AudioManager } from "./audioManager";
+
+// --- Interfaces ---
 interface CreditEntry {
-  credit: string;
-  tracks: string[];
+    credit: string;
+    tracks: string[];
 }
+
 interface DataFile {
-  animations: Record<string, string>;
-  credits: Record<string, CreditEntry[]>;
+    animations: Record<string, string>;
+    credits: Record<string, CreditEntry[]>;
 }
 
-// --- DOM Elements ---
-const viewer = document.getElementById("viewer") as HTMLIFrameElement;
-const controls = document.getElementById("controls") as HTMLDivElement;
+// --- State Management ---
+// Centralized state object
+interface AppState {
+    animations: string[];
+    animationMusicMap: Record<string, string>;
+    creditsData: Record<string, CreditEntry[]>;
+    currentIndex: number;
+    userInteracted: boolean;
+}
 
-// Buttons
-const prevBtn = document.getElementById("prevBtn") as HTMLButtonElement;
-const nextBtn = document.getElementById("nextBtn") as HTMLButtonElement;
-const randomBtn = document.getElementById("randomBtn") as HTMLButtonElement;
-const aboutBtn = document.getElementById("aboutBtn") as HTMLButtonElement;
+const appState: AppState = {
+    animations: [],
+    animationMusicMap: {},
+    creditsData: {},
+    currentIndex: 0,
+    userInteracted: false,
+};
+
+// --- Module Instances ---
+// UIManager handles all DOM interactions and modal displays.
+const uiManager = new UIManager(
+    document.getElementById("viewer") as HTMLIFrameElement,
+    document.getElementById("controls") as HTMLDivElement,
+    document.getElementById("play-overlay") as HTMLDivElement,
+    document.getElementById("playBtn") as HTMLButtonElement,
+    document.getElementById("about-modal") as HTMLDivElement,
+    document.getElementById("closeAboutBtn") as HTMLButtonElement,
+    document.getElementById("animation-filename") as HTMLSpanElement,
+    document.getElementById("music-credit") as HTMLDivElement,
+    document.getElementById("favorites-modal") as HTMLDivElement,
+    document.getElementById("closeFavoritesBtn") as HTMLButtonElement,
+    document.getElementById("favorites-list") as HTMLUListElement,
+    document.getElementById("favoriteBtn") as HTMLButtonElement,
+);
+
+// AudioManager manages the audio element and playback.
+const audioManager = new AudioManager(buildMusicUrl);
+
+// AnimationManager handles loading animations into the iframe.
+const animationManager = new AnimationManager(uiManager.viewer);
+
+// Navigation handles moving between animations.
+const navigation = new Navigation();
+
+// --- Functions to interact with state and modules ---
+
+/**
+ * Finds and formats credit information for a given music name.
+ * @param musicName The name of the music file.
+ * @returns An object containing the credit text and a URL, or null if no URL.
+ */
+function findCredit(musicName: string): { text: string; url: string | null } {
+    if (!musicName) {
+        return { text: "Music: None", url: null };
+    }
+
+    for (const source in appState.creditsData) {
+        for (const entry of appState.creditsData[source]) {
+            if (entry.tracks.includes(musicName)) {
+                const text = `Music "${musicName}" created by ${entry.credit} from ${source}.`;
+                const url = getURL(musicName, source);
+                return { text, url };
+            }
+        }
+    }
+    return { text: `Music: "${musicName}" (error: credit not found).`, url: null };
+}
+
+/**
+ * Loads the current animation and its associated music.
+ * Updates the favorite button state.
+ */
+async function loadCurrentAnimation(): Promise<void> {
+    if (appState.animations.length === 0) return;
+
+    const animation = appState.animations[appState.currentIndex];
+    animationManager.loadAnimation(animation);
+
+    // Update favorite button based on current animation
+    uiManager.updateFavoriteButton(Favorites.isFavorite(animation));
+
+    const musicName = appState.animationMusicMap[animation];
+    if (musicName) {
+        await audioManager.setMusic(musicName);
+        if (appState.userInteracted) {
+            audioManager.playMusic();
+        }
+    } else {
+        audioManager.stopMusic();
+    }
+}
+
+/**
+ * Handles navigation to the next animation.
+ */
+function goToNextAnimation(): void {
+    appState.currentIndex = (appState.currentIndex + 1) % appState.animations.length;
+    loadCurrentAnimation();
+}
+
+/**
+ * Handles navigation to the previous animation.
+ */
+function goToPreviousAnimation(): void {
+    appState.currentIndex = (appState.currentIndex - 1 + appState.animations.length) % appState.animations.length;
+    loadCurrentAnimation();
+}
+
+/**
+ * Handles navigation to a random animation.
+ */
+function goToRandomAnimation(): void {
+    const oldIndex = appState.currentIndex;
+    if (appState.animations.length > 1) {
+        let newIndex;
+        do {
+            newIndex = Math.floor(Math.random() * appState.animations.length);
+        } while (newIndex === oldIndex);
+        appState.currentIndex = newIndex;
+    }
+    loadCurrentAnimation();
+}
+
+/**
+ * Shows the about modal with details of the current animation.
+ */
+function showAboutModal(): void {
+    const animationName = appState.animations[appState.currentIndex];
+    const musicName = appState.animationMusicMap[animationName];
+    const creditInfo = findCredit(musicName);
+    uiManager.showAboutModal(animationName, creditInfo.text, creditInfo.url);
+}
+
+/**
+ * Toggles the favorite status of the current animation.
+ */
+function toggleFavorite(): void {
+    const animation = appState.animations[appState.currentIndex];
+    if (Favorites.isFavorite(animation)) {
+        Favorites.removeFavorite(animation);
+    } else {
+        Favorites.addFavorite(animation);
+    }
+    uiManager.updateFavoriteButton(Favorites.isFavorite(animation));
+}
+
+/**
+ * Displays the list of favorite animations in the modal.
+ */
+function showFavoritesList(): void {
+    const favorites = Favorites.getFavorites();
+    uiManager.showFavoritesModal(favorites, (animationName: string) => {
+        // Callback for clicking a favorite animation
+        const foundIndex = appState.animations.indexOf(animationName);
+        if (foundIndex !== -1) {
+            appState.currentIndex = foundIndex;
+            loadCurrentAnimation();
+            uiManager.hideFavoritesModal(); // Close modal after selection
+        }
+    });
+}
+
+/**
+ * Initializes the application by fetching data and setting up initial state.
+ */
+async function initializeApp(): Promise<void> {
+    try {
+        const response = await fetch("data.json");
+        const data: DataFile = await response.json();
+
+        appState.animationMusicMap = data.animations;
+        appState.animations = Object.keys(appState.animationMusicMap);
+        appState.creditsData = data.credits;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const animationParam = urlParams.get('animation');
+        if (animationParam) {
+            const foundIndex = appState.animations.indexOf(animationParam);
+            if (foundIndex !== -1) {
+                appState.currentIndex = foundIndex;
+            }
+        }
+
+        uiManager.viewer.style.filter = 'blur(8px)'; // Initially blur the viewer
+        loadCurrentAnimation(); // Load initial animation without playing music yet
+    } catch (error) {
+        console.error("Failed to load or parse data.json:", error);
+        document.body.innerHTML = '<div style="color: red; text-align: center; padding-top: 50px;">Error loading animation data. Please check console.</div>';
+    }
+}
+
+// --- Event Listener Setup ---
 
 // Play Overlay
-const playOverlay = document.getElementById("play-overlay") as HTMLDivElement;
-const playBtn = document.getElementById("playBtn") as HTMLButtonElement;
+uiManager.playBtn.addEventListener('click', () => {
+    appState.userInteracted = true;
+    uiManager.hidePlayOverlay();
+    uiManager.showControls();
+    uiManager.viewer.style.filter = 'none'; // Remove blur
 
-// About Modal
-const aboutModal = document.getElementById("about-modal") as HTMLDivElement;
-const closeAboutBtn = document.getElementById("closeAboutBtn") as HTMLButtonElement;
-const animationFilenameEl = document.getElementById("animation-filename") as HTMLSpanElement;
-const musicCreditEl = document.getElementById("music-credit") as HTMLDivElement;
-const favoriteBtn = document.getElementById("favoriteBtn") as HTMLButtonElement;
-
-const favoritesBtn = document.getElementById("favoritesBtn") as HTMLButtonElement;
-const favoritesModal = document.getElementById("favorites-modal") as HTMLDivElement;
-const closeFavoritesBtn = document.getElementById("closeFavoritesBtn") as HTMLButtonElement;
-const favoritesList = document.getElementById("favorites-list") as HTMLUListElement;
-
-
-
-// --- State ---
-let animations: string[] = [];
-let animationMusicMap: Record<string, string> = {};
-let creditsData: Record<string, CreditEntry[]> = {};
-let index = 0;
-let userInteracted = false;
-
-// Audio element to play background music
-const audio = new Audio();
-audio.loop = true;
-
-// --- Functions ---
-
-/**
- * Fetch and process the data.json file
- */
-async function loadAnimations(): Promise<void> {
-  try {
-    const response = await fetch("data.json");
-    const data: DataFile = await response.json();
-
-    animationMusicMap = data.animations;
-    animations = Object.keys(animationMusicMap);
-    creditsData = data.credits;
-    const urlParams = new URLSearchParams(window.location.search);
-    const animationParam = urlParams.get('animation');
-
-
-    if (animationParam) {
-      const foundIndex = animations.indexOf(animationParam);
-      if (foundIndex !== -1) {
-        index = foundIndex; // Set index to the specified animation
-      }
+    if (audioManager.isMusicSet()) {
+        audioManager.playMusic();
     }
-
-
-    // Initially blur the viewer
-    viewer.style.filter = 'blur(8px)';
-
-    // Load the first animation, but don't play music yet
-    load();
-  } catch (error) {
-    console.error("Failed to load or parse data.json:", error);
-    // Display an error to the user
-    document.body.innerHTML = '<div style="color: red; text-align: center; padding-top: 50px;">Error loading animation data. Please check console.</div>';
-  }
-}
-
-/**
- * Load the current animation into the iframe and prepare its matching music
- */
-async function load(): Promise<void> {
-  if (animations.length === 0) return;
-  const animation = animations[index];
-  viewer.onload = () => {
-    const iframeWindow = viewer.contentWindow;
-    if (iframeWindow) {
-      iframeWindow.addEventListener("keydown", handleKeydown);
-    }
-  };
-
-  viewer.src = `data/${animation}.html`;
-  updateFavoriteButton(); // make the favorite button display correctly
-
-  const musicName = animationMusicMap[animation];
-  if (musicName) {
-    audio.src = await buildMusicUrl(musicName);
-    if (userInteracted) {
-      audio.play().catch(err => console.error("Error playing audio:", err));
-    }
-  } else {
-    audio.pause();
-    audio.src = ""; // Clear src if no music
-  }
-}
-
-
-function findCredit(musicName: string): { text: string; url: string | null } {
-  if (!musicName) {
-    return { text: "Music: None", url: null };
-  }
-
-  for (const source in creditsData) {
-    for (const entry of creditsData[source]) {
-      if (entry.tracks.includes(musicName)) {
-        const text = `Music "${musicName}" created by ${entry.credit} from ${source}.`;
-        const url = getURL(musicName, source)
-        return { text, url };
-      }
-    }
-  }
-  return { text: `Music: "${musicName}" (error: credit not found).`, url: null };
-}
-
-function showAboutInfo(): void {
-  const animationName = animations[index];
-  animationFilenameEl.textContent = `${animationName}.html`;
-
-  const musicName = animationMusicMap[animationName];
-  const creditInfo = findCredit(musicName);
-
-  musicCreditEl.innerHTML = ''; // Clear previous content
-  if (creditInfo.url) {
-    const link = document.createElement('a');
-    link.href = creditInfo.url;
-    link.textContent = creditInfo.text;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    musicCreditEl.appendChild(link);
-  } else {
-    musicCreditEl.textContent = creditInfo.text;
-  }
-
-  aboutModal.classList.remove('hidden');
-}
-
-// --- Navigation Functions ---
-function next(): void {
-  index = (index + 1) % animations.length;
-  load();
-}
-
-function prev(): void {
-  index = (index - 1 + animations.length) % animations.length;
-  load();
-}
-
-function random(): void {
-  const oldIndex = index;
-  if (animations.length > 1) {
-    do {
-      index = Math.floor(Math.random() * animations.length);
-    } while (index === oldIndex);
-  }
-  load();
-}
-
-// --- Event Listeners ---
-
-playBtn.addEventListener('click', () => {
-  userInteracted = true;
-  playOverlay.classList.add('hidden');
-  controls.classList.remove('hidden');
-  viewer.style.filter = 'none'; // Remove blur
-
-  if (audio.src) {
-    audio.play().catch(err => console.error("Error playing audio on interaction:", err));
-  }
 });
 
 // Main controls
-prevBtn.addEventListener("click", prev);
-nextBtn.addEventListener("click", next);
-randomBtn.addEventListener("click", random);
+uiManager.prevBtn.addEventListener("click", goToPreviousAnimation);
+uiManager.nextBtn.addEventListener("click", goToNextAnimation);
+uiManager.randomBtn.addEventListener("click", goToRandomAnimation);
 
 // About Modal
-aboutBtn.addEventListener("click", showAboutInfo);
-closeAboutBtn.addEventListener("click", () => aboutModal.classList.add('hidden'));
-aboutModal.addEventListener('click', (e) => {
-  if (e.target === aboutModal) {
-    aboutModal.classList.add('hidden');
-  }
+uiManager.aboutBtn.addEventListener("click", showAboutModal);
+uiManager.closeAboutBtn.addEventListener("click", () => uiManager.hideAboutModal());
+uiManager.aboutModal.addEventListener('click', (e) => {
+    if (e.target === uiManager.aboutModal) {
+        uiManager.hideAboutModal();
+    }
 });
 
-export function handleKeydown(e: KeyboardEvent): void {
-  if (e.key === "Escape" && !aboutModal.classList.contains("hidden")) {
-    aboutModal.classList.add("hidden");
-    return;
-  }
-  if (aboutModal.classList.contains("hidden")) {
-    if (e.key === "ArrowUp") prev();
-    if (e.key === "ArrowDown") next();
-  }
-}
-
-
-window.addEventListener('keydown', handleKeydown);
-
-let touchStartX = 0, touchStartY = 0;
-window.addEventListener('touchstart', e => {
-  const firstTouch = e.touches[0];
-  touchStartX = firstTouch.clientX;
-  touchStartY = firstTouch.clientY;
-}, { passive: true });
-
-window.addEventListener('touchend', e => {
-  if (!touchStartX || !touchStartY) return;
-  const touchEndX = e.changedTouches[0].clientX;
-  const touchEndY = e.changedTouches[0].clientY;
-  const deltaX = touchEndX - touchStartX;
-  const deltaY = touchEndY - touchStartY;
-  touchStartX = 0;
-  touchStartY = 0;
-  if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 30) {
-    deltaY > 0 ? next() : prev(); // Swipe down (deltaY > 0) for next, swipe up for prev
-  }
-}, { passive: true });
-
-favoriteBtn.addEventListener("click", () => {
-  const animation = animations[index];
-  if (isFavorite(animation)) {
-    removeFavorite(animation);
-  } else {
-    addFavorite(animation);
-  }
-  updateFavoriteButton();
+// Favorites
+uiManager.favoriteBtn.addEventListener("click", toggleFavorite);
+uiManager.favoritesBtn.addEventListener("click", showFavoritesList);
+uiManager.closeFavoritesBtn.addEventListener("click", () => uiManager.hideFavoritesModal());
+uiManager.favoritesModal.addEventListener('click', (e) => {
+    if (e.target === uiManager.favoritesModal) {
+        uiManager.hideFavoritesModal();
+    }
 });
 
-function updateFavoriteButton(): void {
-  const animation = animations[index];
-  if (isFavorite(animation)) {
-    favoriteBtn.classList.add('active');
-  } else {
-    favoriteBtn.classList.remove('active');
-  }
-}
+function onkeyDown(e: KeyboardEvent) {
+        // Check if any modal is open
+        const isModalOpen = uiManager.isAboutModalOpen() || uiManager.isFavoritesModalOpen();
 
-favoritesBtn.addEventListener("click", showFavorites);
+        if (e.key === "Escape" && isModalOpen) {
+            if (uiManager.isAboutModalOpen()) uiManager.hideAboutModal();
+            if (uiManager.isFavoritesModalOpen()) uiManager.hideFavoritesModal();
+            return;
+        }
 
-closeFavoritesBtn.addEventListener("click", () => favoritesModal.classList.add('hidden'));
+        // Only allow navigation if no modals are open
+        if (!isModalOpen) {
+            if (e.key === "ArrowUp") goToPreviousAnimation();
+            if (e.key === "ArrowDown") goToNextAnimation();
+        }
+    }
 
-favoritesModal.addEventListener('click', (e) => {
-  if (e.target === favoritesModal) {
-    favoritesModal.classList.add('hidden');
-  }
-});
+// Global keyboard and touch navigation
+window.addEventListener('keydown', onkeyDown);
+animationManager.setupIframeKeydownListener(onkeyDown)
 
-function showFavorites(): void {
-  const favorites = getFavorites();
-  favoritesList.innerHTML = '';
-  if (favorites.length === 0) {
-    favoritesList.innerHTML = '<li>No favorites yet.</li>';
-  } else {
-    favorites.forEach((animation:string) => {
-      const li = document.createElement('li');
-      const a = document.createElement('a');
-      a.href = `?animation=${animation}`;
-      a.textContent = animation;
-      a.addEventListener('click', (e) => {
-        e.preventDefault();
-        index = animations.indexOf(animation);
-        load();
-        favoritesModal.classList.add('hidden');
-      });
-      li.appendChild(a);
-      favoritesList.appendChild(li);
-    });
-  }
-  favoritesModal.classList.remove('hidden');
-}
+// Add swipe listeners
+navigation.addSwipeListeners(
+    () => goToNextAnimation(), // Swipe down
+    () => goToPreviousAnimation() // Swipe up
+);
 
 
-// --- Initial Load ---
-loadAnimations();
+// Initial application load
+initializeApp();
