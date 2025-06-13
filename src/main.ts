@@ -28,7 +28,9 @@ const playBtn = document.getElementById("playBtn") as HTMLButtonElement;
 const aboutModal = document.getElementById("about-modal") as HTMLDivElement;
 const closeAboutBtn = document.getElementById("closeAboutBtn") as HTMLButtonElement;
 const animationInfoEl = document.getElementById("animation-info") as HTMLParagraphElement;
-const musicCreditEl = document.getElementById("music-credit") as HTMLParagraphElement;
+const animationFilenameEl = document.getElementById("animation-filename") as HTMLSpanElement;
+const musicCreditEl = document.getElementById("music-credit") as HTMLDivElement;
+
 
 // --- State ---
 let animations: string[] = [];
@@ -100,33 +102,54 @@ async function load(): Promise<void> {
   }
 }
 
-/**
- * Finds the credit information for a given music track name.
- */
-function findCredit(musicName: string): string {
-    if (!musicName) return "Music: None";
 
-    for (const source in creditsData) { // e.g., "pixabay"
-        for (const entry of creditsData[source]) { // { credit: "name", tracks: [...] }
-            if (entry.tracks.includes(musicName)) {
-                return `Music "${musicName}" created by ${entry.credit} from ${source}.`;
-            }
-        }
-    }
-    return `Music: "${musicName}" (credit not found).`;
+function getURL(musicName: string,source:string){
+  // 10__fs -> 10 (OR alwase start with Number_ )
+  // pix-song-10 -> 10 (OR alwase end with -Number)
+  const match = musicName.match(/^(\d+)_|-(\d+)$/);
+  const id =  match ? (match[1] || match[2]) : '';
+
+  return `https://${source}/${id}`
+
 }
 
-/**
- * Populates and displays the "About" modal.
- */
+function findCredit(musicName: string): { text: string; url: string | null } {
+  if (!musicName) {
+    return { text: "Music: None", url: null };
+  }
+
+  for (const source in creditsData) {
+    for (const entry of creditsData[source]) {
+      if (entry.tracks.includes(musicName)) {
+        const text = `Music "${musicName}" created by ${entry.credit} from ${source}.`;
+        const url = getURL(musicName,source)
+        return { text, url };
+      }
+    }
+  }
+  return { text: `Music: "${musicName}" (error: credit not found).`, url: null };
+}
+
 function showAboutInfo(): void {
-    const animationName = animations[index];
-    const musicName = animationMusicMap[animationName];
+  const animationName = animations[index];
+  animationFilenameEl.textContent = `${animationName}.html`;
 
-    animationInfoEl.textContent = `Animation File: ${animationName}.html`;
-    musicCreditEl.textContent = findCredit(musicName);
+  const musicName = animationMusicMap[animationName];
+  const creditInfo = findCredit(musicName);
 
-    aboutModal.classList.remove('hidden');
+  musicCreditEl.innerHTML = ''; // Clear previous content
+  if (creditInfo.url) {
+    const link = document.createElement('a');
+    link.href = creditInfo.url;
+    link.textContent = creditInfo.text;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    musicCreditEl.appendChild(link);
+  } else {
+    musicCreditEl.textContent = creditInfo.text;
+  }
+
+  aboutModal.classList.remove('hidden');
 }
 
 // --- Navigation Functions ---
@@ -163,21 +186,53 @@ playBtn.addEventListener('click', () => {
     }
 });
 
+// Main controls
 prevBtn.addEventListener("click", prev);
 nextBtn.addEventListener("click", next);
 randomBtn.addEventListener("click", random);
 
+// About Modal
 aboutBtn.addEventListener("click", showAboutInfo);
-closeAboutBtn.addEventListener("click", () => {
+closeAboutBtn.addEventListener("click", () => aboutModal.classList.add('hidden'));
+aboutModal.addEventListener('click', (e) => {
+  if (e.target === aboutModal) {
     aboutModal.classList.add('hidden');
+  }
 });
 
+
 // Hide modal on escape key press or click outside
+// Keyboard and Swipe Navigation
 window.addEventListener('keydown', (e) => {
-    if (e.key === "Escape" && !aboutModal.classList.contains('hidden')) {
-        aboutModal.classList.add('hidden');
-    }
+  if (e.key === "Escape" && !aboutModal.classList.contains('hidden')) {
+    aboutModal.classList.add('hidden');
+    return;
+  }
+  if (aboutModal.classList.contains('hidden')) {
+    if (e.key === 'ArrowLeft') prev();
+    if (e.key === 'ArrowRight') next();
+  }
 });
+
+let touchStartX = 0, touchStartY = 0;
+window.addEventListener('touchstart', e => {
+  const firstTouch = e.touches[0];
+  touchStartX = firstTouch.clientX;
+  touchStartY = firstTouch.clientY;
+}, { passive: true });
+
+window.addEventListener('touchend', e => {
+  if (!touchStartX || !touchStartY) return;
+  const touchEndX = e.changedTouches[0].clientX;
+  const touchEndY = e.changedTouches[0].clientY;
+  const deltaX = touchEndX - touchStartX;
+  const deltaY = touchEndY - touchStartY;
+  touchStartX = 0;
+  touchStartY = 0;
+  if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 30) {
+    deltaX > 0 ? prev() : next();
+  }
+}, { passive: true });
 
 // --- Initial Load ---
 loadAnimations();

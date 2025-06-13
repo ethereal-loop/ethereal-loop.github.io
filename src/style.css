@@ -165,3 +165,39 @@ iframe {
 #closeAboutBtn:hover {
   color: white;
 }
+
+.tooltip-trigger {
+  cursor: help;
+  border-bottom: 1px dotted;
+  font-weight: bold;
+  font-size: 0.9em;
+  color: #ccc;
+}
+#music-credit a {
+  color: #8ab4f8;
+  text-decoration: none;
+}
+#music-credit a:hover {
+  text-decoration: underline;
+}
+/* --- Mobile-specific adjustments --- */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    padding: 25px 20px;
+  }
+
+  #controls button {
+    padding: 15px; /* Larger tap targets */
+  }
+
+  #controls button svg {
+    width: 32px; /* Bigger icons */
+    height: 32px;
+  }
+
+  #controls {
+    gap: 15px; /* More space between buttons */
+  }
+}
+

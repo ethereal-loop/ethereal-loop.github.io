@@ -18,14 +18,19 @@
     </button>
   </div>
 
-  <div id="about-modal" class="hidden">
+<div id="about-modal" class="hidden">
     <div class="modal-content">
       <button id="closeAboutBtn" title="Close">&times;</button>
       <h2>About</h2>
-      <p id="animation-info"></p>
-      <p id="music-credit"></p>
+      <p id="animation-info">
+        Animation File: <span id="animation-filename"></span>
+        <span class="tooltip-trigger" title="This filename is an encoded version of a random English term.">(?)</span>
+      </p>
+      <div id="music-credit">
+
+      </div>
     </div>
-  </div>
+</div>
 
   <div id="app">
     <iframe id="viewer" src=""></iframe>

@@ -71,7 +71,7 @@
     "93li": "sleepy-rain-116521"
   },
   "credits": {
-    "pixabay": [
+    "pixabay.com/music": [
       {
         "credit": "Yurii Kohut (lvymusic)",
         "tracks": [
@@ -182,7 +182,7 @@
         ]
       }
     ],
-    "freesound": [
+    "freesound.org/s": [
       {
         "credit": "LolaMoore",
         "license": "Attribution 4.0",
@@ -211,7 +211,6 @@
           "757684__lolamoore__soulful-piano-reflections",
           "757888__lolamoore__tragic-and-melancholic",
           "758152__lolamoore__calm-background",
-          "758153__lolamoore__calm-reflections",
           "758154__lolamoore__calm-surroundings",
           "758156__lolamoore__atmospheric-cosmic-journey",
           "758328__lolamoore__calming-peaceful-atmosphere",
