@@ -6,14 +6,11 @@
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Animations Viewer</title>
-  <!-- Load Tailwind CSS for utility classes -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Inter font for a modern look -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body class="font-inter">
-  <!-- Play Overlay (remains the same) -->
   <div id="play-overlay" class="fixed inset-0 z-2000 flex items-center justify-center bg-black bg-opacity-30 backdrop-blur-md transition-opacity duration-500">
     <button id="playBtn" title="Play" class="bg-transparent border-2 border-white rounded-full w-32 h-32 flex items-center justify-center text-white cursor-pointer transition-all duration-200 hover:scale-110 hover:bg-white hover:bg-opacity-10">
       <svg xmlns="http://www.w3.org/2000/svg" height="100" viewBox="0 0 24 24" width="100" fill="currentColor" class="translate-x-[5px]">
@@ -23,65 +20,58 @@
     </button>
   </div>
 
-  <!-- About Modal (remains the same, styling updated in CSS) -->
-  <div id="about-modal" class="hidden fixed inset-0 z-3000 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm">
-    <div class="modal-content bg-[#2c2c2c] text-[#f1f1f1] p-8 rounded-lg w-[90%] max-w-[500px] relative shadow-lg">
-      <button id="closeAboutBtn" title="Close" class="absolute top-2 right-4 text-4xl text-gray-400 cursor-pointer transition-colors duration-200 hover:text-white">&times;</button>
-      <h2 class="text-white text-2xl mb-4">About</h2>
-      <p id="animation-info" class="mb-4 leading-relaxed">
-        Animation File: <span id="animation-filename" class="font-semibold"></span>
-        <span class="tooltip-trigger cursor-help border-b border-dotted border-gray-400 font-bold text-sm text-gray-400" title="This filename is an encoded version of a random English term.">(?)</span>
+  <div id="about-modal" class="hidden fixed z-3000 transition-transform duration-300 ease-in-out">
+    <div class="modal-content bg-[#1e1e1e] bg-opacity-90 backdrop-blur-sm text-[#f1f1f1] p-6 rounded-lg shadow-lg relative">
+      <button id="closeAboutBtn" title="Close" class="absolute top-2 right-2 text-3xl text-gray-400 cursor-pointer transition-colors duration-200 hover:text-white">&times;</button>
+      <h2 class="text-white text-xl mb-3">About This Animation</h2>
+      <p id="animation-info" class="mb-3 leading-relaxed text-sm">
+        File: <span id="animation-filename" class="font-semibold"></span>
       </p>
-      <div id="music-credit" class="leading-relaxed">
-        <!-- Music credit will be inserted here -->
-      </div>
+      <div id="music-credit" class="leading-relaxed text-sm">
+        </div>
     </div>
   </div>
 
-  <!-- Main App Container -->
-  <div id="app" class="h-full w-full flex flex-col">
+  <div id="viewer-container" class="h-full w-full">
     <iframe id="viewer" src="" class="w-full h-full border-0 transition-filter duration-500 ease-in-out"></iframe>
 
-    <!-- Controls -->
-    <div id="controls" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-1000 bg-black bg-opacity-50 rounded-full p-2 flex gap-3">
-      <button id="prevBtn" title="Previous Animation (Up Arrow)" class="bg-transparent border-none rounded-full text-white text-opacity-80 cursor-pointer p-2 flex items-center justify-center transition-colors duration-200 hover:bg-white hover:bg-opacity-20 hover:text-white">
-        <svg xmlns="http://www.w3.org/2000/svg" height="28" viewBox="0 0 24 24" width="28" fill="currentColor" class="rotate-90">
-          <path d="M12 21l-9-9 9-9 1.42 1.42L6.84 11H21v2H6.84l6.58 6.58L12 21z" />
-        </svg>
-      </button>
-      <button id="randomBtn" title="Random Animation" class="bg-transparent border-none rounded-full text-white text-opacity-80 cursor-pointer p-2 flex items-center justify-center transition-colors duration-200 hover:bg-white hover:bg-opacity-20 hover:text-white">
+    <div id="bottom-nav" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-1000 flex gap-4">
+      <button id="prevBtn" title="Previous (Up Arrow)" class="control-btn">
         <svg xmlns="http://www.w3.org/2000/svg" height="28" viewBox="0 0 24 24" width="28" fill="currentColor">
-          <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.7 0 1.3-.1 1.9-.3V19c-.4.1-.9.2-1.4.2-3.87 0-7-3.13-7-7s3.13-7 7-7c3.48 0 6.37 2.57 6.92 6H21V8h-2V6h-2V3c-.56 0-1.12-.11-1.66-.32C14.7 3.03 13.38 3 12 3zm4.5 9c-.83 0-1.5-.67-1.5-1.5S15.67 9 16.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm-3 4c-.83 0-1.5-.67-1.5-1.5S12.67 13 13.5 13s1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm-3-4c-.83 0-1.5-.67-1.5-1.5S9.67 9 10.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+          <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
         </svg>
       </button>
-      <button id="nextBtn" title="Next Animation (Down Arrow)" class="bg-transparent border-none rounded-full text-white text-opacity-80 cursor-pointer p-2 flex items-center justify-center transition-colors duration-200 hover:bg-white hover:bg-opacity-20 hover:text-white">
-        <svg xmlns="http://www.w3.org/2000/svg" height="28" viewBox="0 0 24 24" width="28" fill="currentColor" class="rotate-90">
-          <path d="M12 3l-9 9 9 9 1.42-1.42L6.84 13H21v-2H6.84l6.58-6.58L12 3z" />
-        </svg>
-      </button>
-      <button id="favoriteBtn" title="Toggle Favorite" class="bg-transparent border-none rounded-full text-white text-opacity-80 cursor-pointer p-2 flex items-center justify-center transition-colors duration-200 hover:bg-white hover:bg-opacity-20 hover:text-white">
+      <button id="nextBtn" title="Next (Down Arrow)" class="control-btn">
         <svg xmlns="http://www.w3.org/2000/svg" height="28" viewBox="0 0 24 24" width="28" fill="currentColor">
-          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/>
         </svg>
       </button>
-      <button id="favoritesBtn" title="Show Favorites" class="bg-transparent border-none rounded-full text-white text-opacity-80 cursor-pointer p-2 flex items-center justify-center transition-colors duration-200 hover:bg-white hover:bg-opacity-20 hover:text-white">
-        <!-- New icon for favorites (e.g., a bookmark icon) -->
+    </div>
+
+    <div id="right-actions" class="fixed right-5 top-1/2 -translate-y-1/2 z-1000 flex flex-col gap-4">
+       <button id="favoriteBtn" title="Toggle Favorite" class="control-btn">
+        </button>
+      <button id="favoritesBtn" title="Show Favorites" class="control-btn">
         <svg xmlns="http://www.w3.org/2000/svg" height="28" viewBox="0 0 24 24" width="28" fill="currentColor">
-          <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/>
+          <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2zm0 15l-5-2.18L7 18V5h10v13z"/>
         </svg>
       </button>
-      <button id="aboutBtn" title="About This Animation" class="bg-transparent border-none rounded-full text-white text-opacity-80 cursor-pointer p-2 flex items-center justify-center transition-colors duration-200 hover:bg-white hover:bg-opacity-20 hover:text-white">
+      <button id="aboutBtn" title="About This Animation" class="control-btn">
         <svg xmlns="http://www.w3.org/2000/svg" height="28" viewBox="0 0 24 24" width="28" fill="currentColor">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+          <path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+        </svg>
+      </button>
+       <button id="randomBtn" title="Random Animation" class="control-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" height="28" viewBox="0 0 24 24" width="28" fill="currentColor">
+          <path d="M10.59 9.17L10 9.76l4.05 4.05 1.41-1.41-1.42-1.42L12 12.59l4.83-4.83L18.24 9.17l-4.24 4.24 2.83 2.83-1.41 1.41-2.83-2.83-4.24 4.24L7.76 18.24l4.83-4.83L11.17 12l-4.24-4.24L8.34 9.17zM5 3h2v2H5zm0 4h2v2H5zm0 4h2v2H5zm0 4h2v2H5zm4-12h2v2H9zM3 5h2v2H3zm0 4h2v2H3zm0 4h2v2H3zm0 4h2v2H3zm4-12h2v2H7zM7 5h2v2H7zm12 12h2v2h-2zm-8 4h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm4-16h-2V7h2V5h-2V3h2v4zM15 5h2v2h-2zm4 0h2v2h-2zm0 4h2v2h-2z"/>
         </svg>
       </button>
     </div>
   </div>
 
-  <!-- New Favorites Page Container -->
-  <div id="favorites-page" class="hidden fixed inset-0 z-2500 bg-[#1a1a1a] text-[#f1f1f1] flex flex-col p-5 overflow-y-auto">
-    <div class="favorites-header flex items-center gap-5 mb-5 pb-2 border-b border-gray-800">
-      <button id="backFromFavoritesBtn" class="bg-transparent border-none text-white cursor-pointer text-lg flex items-center gap-1 transition-colors duration-200 p-2 rounded-md hover:text-blue-300 hover:bg-gray-800">
+    <div id="favorites-page" class="fixed inset-0 z-2500 flex flex-col p-5 overflow-y-auto hidden">
+    <div class="favorites-header flex items-center gap-5 mb-5 pb-4 border-b border-gray-700">
+      <button id="backFromFavoritesBtn" class="bg-transparent border-none text-white cursor-pointer text-lg flex items-center gap-1.5 transition-colors duration-200 p-2 rounded-md hover:text-blue-300 hover:bg-gray-800">
           <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="currentColor" class="align-middle">
               <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
           </svg>
@@ -89,12 +79,11 @@
       </button>
       <h2 class="m-0 text-white text-3xl font-semibold">Your Favorites</h2>
     </div>
-    <ul id="favorites-grid" class="list-none p-0 m-0 grid grid-cols-auto-fill-minmax-180px gap-5 flex-grow">
-      <!-- Favorite items will be dynamically inserted here -->
-    </ul>
+    <ul id="favorites-grid" class="list-none p-0 m-0 grid flex-grow">
+      </ul>
   </div>
+
 
   <script type="module" src="src/main.ts"></script>
 </body>
-
 </html>

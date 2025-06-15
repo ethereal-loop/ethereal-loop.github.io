@@ -21,18 +21,17 @@ html {
   background: black;
 }
 
-#app {
+#viewer-container,
+#app { /* #app is still used by some tools */
   height: 100%;
   width: 100%;
-  display: flex; /* Make #app a flex container */
-  flex-direction: column;
+  position: relative;
 }
 
 iframe {
   width: 100%;
   height: 100%;
   border: 0;
-  transition: filter 0.5s ease-in-out;
 }
 
 .hidden {
@@ -74,135 +73,77 @@ iframe {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-#play-overlay svg {
-  transform: translateX(5px); /* Optically center the play icon */
-}
-
-/* --- Main Controls --- */
-#controls {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
+/* --- Ideal UI Controls --- */
+.control-btn {
   background-color: rgba(0, 0, 0, 0.5);
-  border-radius: 30px;
-  padding: 10px;
-  display: flex;
-  gap: 10px;
-}
-
-#controls button {
-  background: none;
   border: none;
   border-radius: 50%;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.9);
   cursor: pointer;
-  padding: 10px;
+  padding: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  backdrop-filter: blur(5px);
 }
 
-#controls button:hover {
+.control-btn:hover {
   background-color: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
 }
 
-#controls button svg {
+.control-btn svg {
   width: 28px;
   height: 28px;
 }
 
-/* --- About Modal --- */
+#bottom-nav, #right-actions {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Show controls when parent container is active */
+#viewer-container.ui-active #bottom-nav,
+#viewer-container.ui-active #right-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#favoriteBtn.active {
+  color: #ff4d6d; /* A nice red/pink for favorites */
+  background-color: rgba(255, 77, 109, 0.2);
+}
+
+/* --- About Panel (Desktop) --- */
 #about-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 3000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(5px);
-}
-
-.modal-content {
-  background: #2c2c2c;
-  color: #f1f1f1;
-  padding: 30px 40px;
-  border-radius: 10px;
-  width: 90%;
-  max-width: 500px;
-  position: relative;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-  font-size: 1.1rem;
-}
-
-.modal-content h2 {
-  margin-top: 0;
-  color: white;
-}
-
-.modal-content p {
-  line-height: 1.6;
+  bottom: 20px;
+  left: 20px;
+  width: auto;
+  max-width: 350px;
+  z-index: 2;
 }
 
 #closeAboutBtn {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  background: none;
-  border: none;
-  font-size: 2rem;
-  color: #aaa;
-  cursor: pointer;
   line-height: 1;
-  transition: color 0.2s;
 }
 
-#closeAboutBtn:hover {
-  color: white;
-}
-
-.tooltip-trigger {
-  cursor: help;
-  border-bottom: 1px dotted;
-  font-weight: bold;
-  font-size: 0.9em;
-  color: #ccc;
-}
-#music-credit a {
-  color: #8ab4f8;
-  text-decoration: none;
-}
-#music-credit a:hover {
-  text-decoration: underline;
-}
-
-
-
-#favoriteBtn.active {
-  color: red; /* Visually indicate the animation is favorited */
-}
-
-/* --- Favorites Page --- */
+/* --- Favorites Page (No major changes needed) --- */
 #favorites-page {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 2500; /* Above main controls, below about modal */
+  z-index: 2500;
   background-color: #1a1a1a;
   color: #f1f1f1;
   display: flex;
   flex-direction: column;
   padding: 20px;
   box-sizing: border-box;
-  overflow-y: auto; /* Enable scrolling for many favorites */
+  overflow-y: auto;
 }
 
 .favorites-header {
@@ -238,20 +179,15 @@ iframe {
   color: #8ab4f8;
   background-color: rgba(255, 255, 255, 0.1);
 }
-#backFromFavoritesBtn svg {
-    width: 24px;
-    height: 24px;
-    vertical-align: middle;
-}
 
 #favorites-grid {
   list-style: none;
   padding: 0;
   margin: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Responsive grid */
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 20px;
-  flex-grow: 1; /* Allow the grid to take available height */
+  flex-grow: 1;
 }
 
 .favorite-item {
@@ -260,11 +196,6 @@ iframe {
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding-bottom: 10px;
 }
 
 .favorite-item:hover {
@@ -274,66 +205,69 @@ iframe {
 
 .favorite-preview {
   width: 100%;
-  height: 120px; /* Fixed height for consistent previews */
-  object-fit: cover; /* Cover the area, cropping if necessary */
+  height: 120px;
+  object-fit: cover;
   display: block;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 10px;
 }
 
 .favorite-name {
   font-size: 0.9em;
   color: #ccc;
-  padding: 0 10px;
-  word-break: break-word; /* Ensure long names wrap */
+  padding: 8px 10px;
+  word-break: break-word;
+  text-align: center;
 }
 
-
-/* --- Mobile-specific adjustments --- */
+/* --- Mobile-specific adjustments ("Shorts-style" UI) --- */
 @media (max-width: 768px) {
-  .modal-content {
-    width: 95%;
-    padding: 25px 20px;
+  /* Hide desktop bottom navigation, rely on swipe */
+  #bottom-nav {
+    display: none;
   }
 
-  #controls button {
-    padding: 15px; /* Larger tap targets */
+  /* Adjust right action buttons for mobile */
+  #right-actions {
+    right: 10px; /* Closer to the edge */
+    gap: 20px; /* More space for tapping */
   }
 
-  #controls button svg {
-    width: 32px; /* Bigger icons */
-    height: 32px;
+  .control-btn {
+    padding: 14px;
   }
 
-  #controls {
-    gap: 15px; /* More space between buttons */
+  .control-btn svg {
+    width: 30px;
+    height: 30px;
   }
 
-  #favorites-page {
-    padding: 10px;
+  /* --- About Bottom Sheet (Mobile) --- */
+  #about-modal {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    max-width: 100%;
+    transform: translateY(100%); /* Start off-screen */
   }
 
-  .favorites-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+  #about-modal:not(.hidden) {
+    transform: translateY(0); /* Animate into view */
   }
 
-  .favorites-header h2 {
-    font-size: 1.8em;
+  #about-modal .modal-content {
+    width: 100%;
+    border-radius: 20px 20px 0 0; /* Rounded top corners */
+    padding: 20px;
+    padding-top: 30px;
   }
 
-  #backFromFavoritesBtn {
-    font-size: 1em;
-    padding: 6px 10px;
-  }
-
+  /* Favorites Page mobile adjustments */
   #favorites-grid {
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 15px;
   }
 
   .favorite-preview {
-    height: 80px;
+    height: 100px;
   }
 }
