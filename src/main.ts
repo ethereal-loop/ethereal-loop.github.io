@@ -1,11 +1,13 @@
 import "./style.css";
+
 import { buildMusicUrl, getURL } from "./utils";
-import * as Favorites from "./favorites";
+import * as Favorites from "./favorites"; // Ensure FavoriteEntry is imported or re-declared here
 
 import { UIManager } from "./uiManager";
 import { AnimationManager } from "./animationManager";
 import { Navigation } from "./navigation";
 import { AudioManager } from "./audioManager";
+import html2canvas from "html2canvas";
 
 // --- Interfaces ---
 interface CreditEntry {
@@ -26,6 +28,7 @@ interface AppState {
     creditsData: Record<string, CreditEntry[]>;
     currentIndex: number;
     userInteracted: boolean;
+    isFavoritesPageActive: boolean; // New state to manage favorites page visibility
 }
 
 const appState: AppState = {
@@ -34,10 +37,11 @@ const appState: AppState = {
     creditsData: {},
     currentIndex: 0,
     userInteracted: false,
+    isFavoritesPageActive: false, // Initialize as false
 };
 
-// --- Module Instances ---
-// UIManager handles all DOM interactions and modal displays.
+// --- Module Instances --
+// UIManager handles all DOM interactions and modal/page displays.
 const uiManager = new UIManager(
     document.getElementById("viewer") as HTMLIFrameElement,
     document.getElementById("controls") as HTMLDivElement,
@@ -47,10 +51,11 @@ const uiManager = new UIManager(
     document.getElementById("closeAboutBtn") as HTMLButtonElement,
     document.getElementById("animation-filename") as HTMLSpanElement,
     document.getElementById("music-credit") as HTMLDivElement,
-    document.getElementById("favorites-modal") as HTMLDivElement,
-    document.getElementById("closeFavoritesBtn") as HTMLButtonElement,
-    document.getElementById("favorites-list") as HTMLUListElement,
     document.getElementById("favoriteBtn") as HTMLButtonElement,
+    // New elements for the full favorites page
+    document.getElementById("favorites-page") as HTMLDivElement,
+    document.getElementById("backFromFavoritesBtn") as HTMLButtonElement,
+    document.getElementById("favorites-grid") as HTMLUListElement, // Updated ID
 );
 
 // AudioManager manages the audio element and playback.
@@ -81,9 +86,33 @@ function findCredit(musicName: string): { text: string; url: string | null } {
                 const url = getURL(musicName, source);
                 return { text, url };
             }
+            // For a robust credit system, you might need more complex matching logic
         }
     }
     return { text: `Music: "${musicName}" (error: credit not found).`, url: null };
+}
+
+/**
+ * Captures a screenshot of the current iframe content.
+ * This function handles cross-origin limitations by attempting to draw to canvas.
+ * For truly cross-origin iframes without specific server-side proxies or
+ * iframe sandboxing with `allow-same-origin` (and the iframe content explicitly allowing it),
+ * screenshotting might not be possible.
+ *
+ * @returns A Promise resolving to a base64 data URL of the screenshot, or null on failure.
+ */
+async function takeScreenshot(): Promise<string | null> {
+    const viewerIframe = uiManager.viewer;
+    // Due to cross-origin security restrictions, direct screenshot of iframe content
+    // is only possible if the iframe content is from the same origin.
+    // Assuming the animations are served from the same domain as the main application.
+    try {
+        const canvas = await html2canvas(viewerIframe.contentDocument!.body);
+        return canvas.toDataURL();
+    } catch (error) {
+        console.error("Failed to capture screenshot:", error);
+        return null;
+    }
 }
 
 /**
@@ -91,7 +120,8 @@ function findCredit(musicName: string): { text: string; url: string | null } {
  * Updates the favorite button state.
  */
 async function loadCurrentAnimation(): Promise<void> {
-    if (appState.animations.length === 0) return;
+    // Only load if the favorites page is NOT active
+    if (appState.animations.length === 0 || appState.isFavoritesPageActive) return;
 
     const animation = appState.animations[appState.currentIndex];
     animationManager.loadAnimation(animation);
@@ -152,32 +182,43 @@ function showAboutModal(): void {
 }
 
 /**
- * Toggles the favorite status of the current animation.
+ * Toggles the favorite status of the current animation, including capturing a screenshot.
  */
-function toggleFavorite(): void {
+async function toggleFavorite(): Promise<void> {
     const animation = appState.animations[appState.currentIndex];
     if (Favorites.isFavorite(animation)) {
         Favorites.removeFavorite(animation);
     } else {
-        Favorites.addFavorite(animation);
+        // Capture screenshot ONLY when adding to favorites
+        const screenshot = await takeScreenshot();
+        Favorites.addFavorite(animation, screenshot);
     }
     uiManager.updateFavoriteButton(Favorites.isFavorite(animation));
 }
 
 /**
- * Displays the list of favorite animations in the modal.
+ * Displays the list of favorite animations on a full page.
  */
 function showFavoritesList(): void {
     const favorites = Favorites.getFavorites();
-    uiManager.showFavoritesModal(favorites, (animationName: string) => {
-        // Callback for clicking a favorite animation
+    appState.isFavoritesPageActive = true; // Set state that favorites page is active
+    uiManager.showFavoritesPage(favorites, (animationName: string) => {
+        // Callback for clicking a favorite animation from the list
         const foundIndex = appState.animations.indexOf(animationName);
         if (foundIndex !== -1) {
             appState.currentIndex = foundIndex;
-            loadCurrentAnimation();
-            uiManager.hideFavoritesModal(); // Close modal after selection
+            hideFavoritesPage(); // Close favorites page after selection
         }
     });
+}
+
+/**
+ * Hides the favorites page and returns to the main viewer.
+ */
+function hideFavoritesPage(): void {
+    uiManager.hideFavoritesPage(); // Delegates UI hiding
+    appState.isFavoritesPageActive = false; // Update app state
+    loadCurrentAnimation(); // Re-load current animation after returning
 }
 
 /**
@@ -231,6 +272,7 @@ uiManager.randomBtn.addEventListener("click", goToRandomAnimation);
 // About Modal
 uiManager.aboutBtn.addEventListener("click", showAboutModal);
 uiManager.closeAboutBtn.addEventListener("click", () => uiManager.hideAboutModal());
+// Close about modal by clicking outside
 uiManager.aboutModal.addEventListener('click', (e) => {
     if (e.target === uiManager.aboutModal) {
         uiManager.hideAboutModal();
@@ -240,25 +282,25 @@ uiManager.aboutModal.addEventListener('click', (e) => {
 // Favorites
 uiManager.favoriteBtn.addEventListener("click", toggleFavorite);
 uiManager.favoritesBtn.addEventListener("click", showFavoritesList);
-uiManager.closeFavoritesBtn.addEventListener("click", () => uiManager.hideFavoritesModal());
-uiManager.favoritesModal.addEventListener('click', (e) => {
-    if (e.target === uiManager.favoritesModal) {
-        uiManager.hideFavoritesModal();
-    }
-});
+uiManager.backFromFavoritesBtn.addEventListener("click", hideFavoritesPage); // New event listener for back button
 
 function onkeyDown(e: KeyboardEvent) {
-        // Check if any modal is open
-        const isModalOpen = uiManager.isAboutModalOpen() || uiManager.isFavoritesModalOpen();
+        // Check if any modal or the favorites page is open
+        const isOverlayOpen = uiManager.isAboutModalOpen() || uiManager.isFavoritesPageOpen();
 
-        if (e.key === "Escape" && isModalOpen) {
-            if (uiManager.isAboutModalOpen()) uiManager.hideAboutModal();
-            if (uiManager.isFavoritesModalOpen()) uiManager.hideFavoritesModal();
-            return;
+        if (e.key === "Escape") {
+            if (uiManager.isAboutModalOpen()) {
+                uiManager.hideAboutModal();
+                return;
+            }
+            if (uiManager.isFavoritesPageOpen()) { // Handle escape on favorites page
+                hideFavoritesPage();
+                return;
+            }
         }
 
-        // Only allow navigation if no modals are open
-        if (!isModalOpen) {
+        // Only allow navigation if no modals or favorites page are open
+        if (!isOverlayOpen) {
             if (e.key === "ArrowUp") goToPreviousAnimation();
             if (e.key === "ArrowDown") goToNextAnimation();
         }
@@ -268,10 +310,10 @@ function onkeyDown(e: KeyboardEvent) {
 window.addEventListener('keydown', onkeyDown);
 animationManager.setupIframeKeydownListener(onkeyDown)
 
-// Add swipe listeners
+// Add swipe listeners (only if not on a special page)
 navigation.addSwipeListeners(
-    () => goToNextAnimation(), // Swipe down
-    () => goToPreviousAnimation() // Swipe up
+    () => { if (!appState.isFavoritesPageActive && !uiManager.isAboutModalOpen()) goToNextAnimation(); }, // Swipe down
+    () => { if (!appState.isFavoritesPageActive && !uiManager.isAboutModalOpen()) goToPreviousAnimation(); } // Swipe up
 );
 
 
