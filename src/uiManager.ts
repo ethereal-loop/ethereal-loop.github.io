@@ -1,5 +1,6 @@
 // uiManager.ts
 import {type FavoriteEntry } from "./favorites";
+import { FavoritesPage } from "./favoritesPage";
 
 export class UIManager {
     public viewer: HTMLIFrameElement;
@@ -11,10 +12,7 @@ export class UIManager {
     public animationFilenameEl: HTMLSpanElement;
     public musicCreditEl: HTMLDivElement;
 
-    // New properties for the full favorites page
-    public favoritesPage: HTMLDivElement;
-    public backFromFavoritesBtn: HTMLButtonElement;
-    public favoritesGrid: HTMLUListElement;
+    public favoritesPage: FavoritesPage;
 
     public favoriteBtn: HTMLButtonElement;
     public prevBtn: HTMLButtonElement;
@@ -38,9 +36,7 @@ export class UIManager {
         this.musicCreditEl = document.getElementById("music-credit") as HTMLDivElement;
 
         // Favorites Page
-        this.favoritesPage = document.getElementById("favorites-page") as HTMLDivElement;
-        this.backFromFavoritesBtn = document.getElementById("backFromFavoritesBtn") as HTMLButtonElement;
-        this.favoritesGrid = document.getElementById("favorites-grid") as HTMLUListElement;
+        this.favoritesPage = new FavoritesPage()
 
         // Control buttons
         this.prevBtn = document.getElementById("prevBtn") as HTMLButtonElement;
@@ -95,63 +91,17 @@ export class UIManager {
         onFavoriteClick: (animationName: string) => void,
         onFavoriteRemove: (animationName: string) => void
     ): void {
-        this.favoritesGrid.innerHTML = '';
-        // this.viewer.style.filter = 'blur(16px)';
-        // this.setUIActive(false);
-
-        if (favorites.length === 0) {
-            const messageLi = document.createElement('li');
-            messageLi.className = 'col-span-full text-center py-8 text-gray-400 text-lg';
-            messageLi.textContent = 'No favorites yet. Click the heart icon on an animation!';
-            this.favoritesGrid.appendChild(messageLi);
-        } else {
-            favorites.forEach((fav) => {
-                const li = document.createElement('li');
-                li.className = 'favorite-item';
-
-                const link = document.createElement('a');
-                link.className = 'favorite-preview-link';
-                link.onclick = () => onFavoriteClick(fav.animation);
-
-                const img = document.createElement('img');
-                img.src = fav.screenshot || `https://via.placeholder.com/220x140/2c2c2c/888888?text=No+Preview`;
-                img.alt = `Preview of ${fav.animation}`;
-                img.className = 'favorite-preview';
-
-                const span = document.createElement('span');
-                span.textContent = fav.animation;
-                span.className = 'favorite-name';
-
-                link.appendChild(img);
-                link.appendChild(span);
-
-                const removeBtn = document.createElement('button');
-                removeBtn.className = 'remove-favorite-btn';
-                removeBtn.innerHTML = '&times;';
-                removeBtn.title = 'Remove Favorite';
-                removeBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    onFavoriteRemove(fav.animation);
-                };
-
-                li.appendChild(link);
-                li.appendChild(removeBtn);
-
-                this.favoritesGrid.appendChild(li);
-            });
-        }
-        this.favoritesPage.classList.remove('hidden');
-        this.favoritesPage.classList.add('active');
+        this.favoritesPage.show(favorites,{onFavoriteClick,onFavoriteRemove})
     }
 
 
     public hideFavoritesPage(): void {
-        this.favoritesPage.classList.add('hidden');
+        this.favoritesPage.hide()
         this.viewerContainer.classList.remove('hidden');
     }
 
     public isFavoritesPageOpen(): boolean {
-        return !this.favoritesPage.classList.contains('hidden');
+        return this.favoritesPage.isOpen()
     }
 
     public updateFavoriteButton(isFavorite: boolean): void {

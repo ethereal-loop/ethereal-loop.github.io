@@ -22,7 +22,8 @@ html {
 }
 
 #viewer-container,
-#app { /* #app is still used by some tools */
+#app {
+  /* #app is still used by some tools */
   height: 100%;
   width: 100%;
   position: relative;
@@ -98,7 +99,8 @@ iframe {
   height: 28px;
 }
 
-#bottom-nav, #right-actions {
+#bottom-nav,
+#right-actions {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease-in-out;
@@ -112,7 +114,8 @@ iframe {
 }
 
 #favoriteBtn.active {
-  color: #ff4d6d; /* A nice red/pink for favorites */
+  color: #ff4d6d;
+  /* A nice red/pink for favorites */
   background-color: rgba(255, 77, 109, 0.2);
 }
 
@@ -191,6 +194,10 @@ iframe {
 }
 
 .favorite-item {
+  position: relative;
+  /* This creates a square container */
+  width: 100%;
+  padding-bottom: 100%; /* This creates a 1:1 aspect ratio */
   background: #2c2c2c;
   border-radius: 8px;
   overflow: hidden;
@@ -198,28 +205,43 @@ iframe {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.favorite-preview-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.favorite-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .favorite-item:hover {
   transform: translateY(-5px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
-.favorite-preview {
-  width: 100%;
-  height: 120px;
-  object-fit: cover;
-  display: block;
-}
-
 .favorite-name {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   font-size: 0.9em;
   color: #ccc;
   padding: 8px 10px;
   word-break: break-word;
   text-align: center;
+  background: rgba(0, 0, 0, 0.5);
 }
+
 
 /* --- Mobile-specific adjustments ("Shorts-style" UI) --- */
 @media (max-width: 768px) {
+
   /* Hide desktop bottom navigation, rely on swipe */
   #bottom-nav {
     display: none;
@@ -227,8 +249,10 @@ iframe {
 
   /* Adjust right action buttons for mobile */
   #right-actions {
-    right: 10px; /* Closer to the edge */
-    gap: 20px; /* More space for tapping */
+    right: 10px;
+    /* Closer to the edge */
+    gap: 20px;
+    /* More space for tapping */
   }
 
   .control-btn {
@@ -247,16 +271,19 @@ iframe {
     left: 0;
     width: 100%;
     max-width: 100%;
-    transform: translateY(100%); /* Start off-screen */
+    transform: translateY(100%);
+    /* Start off-screen */
   }
 
   #about-modal:not(.hidden) {
-    transform: translateY(0); /* Animate into view */
+    transform: translateY(0);
+    /* Animate into view */
   }
 
   #about-modal .modal-content {
     width: 100%;
-    border-radius: 20px 20px 0 0; /* Rounded top corners */
+    border-radius: 20px 20px 0 0;
+    /* Rounded top corners */
     padding: 20px;
     padding-top: 30px;
   }

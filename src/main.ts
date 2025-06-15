@@ -138,6 +138,7 @@ function showFavoritesList(): void {
             if (foundIndex !== -1) {
                 appState.currentIndex = foundIndex;
                 hideFavoritesPage();
+                loadCurrentAnimation();
             }
         },
         // Remove handler
@@ -211,7 +212,6 @@ uiManager.closeAboutBtn.addEventListener("click", () => uiManager.hideAboutModal
 // Favorites
 uiManager.favoriteBtn.addEventListener("click", toggleFavorite);
 uiManager.favoritesBtn.addEventListener("click", showFavoritesList);
-uiManager.backFromFavoritesBtn.addEventListener("click", hideFavoritesPage);
 
 // UI Visibility Controls
 const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
