@@ -51,9 +51,10 @@ export class UIManager {
         this.playOverlay.classList.add('hidden');
     }
 
+
     public showAboutModal(filename: string, creditText: string, creditUrl: string | null): void {
         this.animationFilenameEl.textContent = `${filename}.html`;
-        this.musicCreditEl.innerHTML = ''; // Clear previous content
+        this.musicCreditEl.innerHTML = '';
 
         if (creditUrl) {
             const link = document.createElement('a');

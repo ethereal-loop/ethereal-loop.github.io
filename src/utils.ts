@@ -14,3 +14,9 @@ export function getURL(musicName: string, source: string): string {
   return `https://${source}/${id}`;
 }
 
+export function extractDomain(url:string) {
+  const domain = url.split('/')[0];
+  const parts = domain.split('.');
+  return parts[parts.length - 2]||url;
+}
+

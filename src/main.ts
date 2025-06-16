@@ -1,6 +1,6 @@
 import "./style.css";
 
-import { buildMusicUrl, getURL } from "./utils";
+import { buildMusicUrl, getURL, extractDomain } from "./utils";
 import * as Favorites from "./favorites";
 
 import { UIManager } from "./uiManager";
@@ -53,7 +53,7 @@ function findCredit(musicName: string): { text: string; url: string | null } {
         for (const entry of appState.creditsData[source]) {
             if (entry.tracks.includes(musicName)) {
                 return {
-                    text: `Music by ${entry.credit} from ${source}.`,
+                    text: `Music by ${entry.credit} from ${extractDomain(source)}.`,
                     url: getURL(musicName, source)
                 };
             }
@@ -81,6 +81,9 @@ async function loadCurrentAnimation(): Promise<void> {
     animationManager.loadAnimation(animation);
     uiManager.updateFavoriteButton(Favorites.isFavorite(animation));
     const musicName = appState.animationMusicMap[animation];
+    if (uiManager.isAboutModalOpen()) {
+        showAboutModal()
+    }
     if (musicName) {
         await audioManager.setMusic(musicName);
         if (appState.userInteracted) audioManager.playMusic();
@@ -248,6 +251,8 @@ animationManager.setupIframeKeydownListener(onkeyDown);
 
 // Swipe Navigation
 navigation.addSwipeListeners(
+    [document, animationManager],
+
     () => { if (!appState.isFavoritesPageActive && !uiManager.isAboutModalOpen()) goToNextAnimation(); },
     () => { if (!appState.isFavoritesPageActive && !uiManager.isAboutModalOpen()) goToPreviousAnimation(); }
 );

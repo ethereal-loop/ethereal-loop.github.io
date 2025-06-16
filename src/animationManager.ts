@@ -14,20 +14,28 @@ export class AnimationManager {
         this.viewer.src = `data/${animationName}.html`;
     }
 
-    /**
-     * Attaches a keydown listener to the iframe's content window once it loads.
-     * This is useful if the iframe content itself needs to respond to key presses.
-     * @param handler The keydown event handler function.
-     */
-    public setupIframeKeydownListener(handler: (e: KeyboardEvent) => void): void {
-        // Ensure the iframe content is fully loaded before trying to add a listener
-        this.viewer.onload = () => {
-            const iframeWindow = this.viewer.contentWindow;
+    public addEventListener(key: string, handler: (e: any) => void, options?: AddEventListenerOptions,usWindow:Window|Document|null=null) {
+        this.viewer.addEventListener('load', () => {
+            const iframeWindow = usWindow||this.viewer.contentDocument
             if (iframeWindow) {
                 // Remove any existing listener to prevent duplicates
-                iframeWindow.removeEventListener("keydown", handler);
-                iframeWindow.addEventListener("keydown", handler);
+                iframeWindow.removeEventListener(key, handler, options);
+                iframeWindow.addEventListener(key, handler, options);
             }
-        };
+        });
+
+    }
+
+
+    public setupIframeKeydownListener(handler: (e: KeyboardEvent) => void): void {
+        // Ensure the iframe content is fully loaded before trying to add a listener
+        this.addEventListener("keydown", handler,undefined,this.viewer.contentWindow)
+        return
+
+    }
+
+    public getFullDoc() {
+        return this.viewer.contentDocument
+
     }
 }

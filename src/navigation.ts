@@ -1,3 +1,5 @@
+import type { AnimationManager } from "./animationManager";
+
 // navigation.ts
 export class Navigation {
     private touchStartX: number = 0;
@@ -10,14 +12,19 @@ export class Navigation {
      * @param onSwipeDown Callback to execute when a swipe down (or right for horizontal) is detected.
      * @param onSwipeUp Callback to execute when a swipe up (or left for horizontal) is detected.
      */
-    public addSwipeListeners(onSwipeDown: () => void, onSwipeUp: () => void): void {
-        window.addEventListener('touchstart', (e: TouchEvent) => {
+    public addSwipeListeners(docs:(Document|AnimationManager|null)[],onSwipeDown: () => void, onSwipeUp: () => void): void {
+        for (const instance of docs) {
+            if (!instance) return
+
+
+
+        instance.addEventListener('touchstart', (e: TouchEvent) => {
             const firstTouch = e.touches[0];
             this.touchStartX = firstTouch.clientX;
             this.touchStartY = firstTouch.clientY;
         }, { passive: true }); // Use passive to improve scrolling performance
 
-        window.addEventListener('touchend', (e: TouchEvent) => {
+        instance.addEventListener('touchend', (e: TouchEvent) => {
             if (!this.touchStartX || !this.touchStartY) return; // No touch started
 
             const touchEndX = e.changedTouches[0].clientX;
@@ -41,14 +48,7 @@ export class Navigation {
                     onSwipeUp(); // Swiped up
                 }
             }
-            // You can add horizontal swipe logic here if needed for left/right
-            // else if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > minSwipeDistance) {
-            //     if (deltaX > 0) {
-            //         // Swiped right
-            //     } else {
-            //         // Swiped left
-            //     }
-            // }
         }, { passive: true });
+    }
     }
 }
