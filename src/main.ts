@@ -102,16 +102,24 @@ function goToPreviousAnimation(): void {
     loadCurrentAnimation();
 }
 
-function goToRandomAnimation(): void {
-    const oldIndex = appState.currentIndex;
-    if (appState.animations.length > 1) {
-        let newIndex;
-        do {
-            newIndex = Math.floor(Math.random() * appState.animations.length);
-        } while (newIndex === oldIndex);
-        appState.currentIndex = newIndex;
+async function shareAnimation() {
+    const animationName = appState.animations[appState.currentIndex];
+    const share_url = `${window.location.origin}${window.location.pathname}?animation=${animationName}`;
+
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: 'Animation Viewer',
+                url: share_url,
+            });
+            console.log('Animation shared successfully');
+        } catch (error) {
+            console.error('Error sharing animation:', error);
+        }
+    } else {
+        // Fallback
+        uiManager.showShareModal(share_url);
     }
-    loadCurrentAnimation();
 }
 
 function showAboutModal(): void {
@@ -206,32 +214,34 @@ uiManager.playBtn.addEventListener('click', () => {
 // Main controls
 uiManager.prevBtn.addEventListener("click", goToPreviousAnimation);
 uiManager.nextBtn.addEventListener("click", goToNextAnimation);
-uiManager.randomBtn.addEventListener("click", goToRandomAnimation);
+uiManager.shareBtn.addEventListener("click", shareAnimation);
 
 // About Modal
 uiManager.aboutBtn.addEventListener("click", showAboutModal);
 uiManager.closeAboutBtn.addEventListener("click", () => uiManager.hideAboutModal());
+// Share Modal
+uiManager.closeShareBtn.addEventListener("click", () => uiManager.hideShareModal());
+uiManager.copyShareUrlBtn.addEventListener("click", async () => {
+    try {
+        await navigator.clipboard.writeText(uiManager.shareUrlInput.value);
+        const originalText = uiManager.copyShareUrlBtn.textContent;
+        uiManager.copyShareUrlBtn.textContent = "Copied!";
+        uiManager.copyShareUrlBtn.disabled = true;
 
+        setTimeout(() => {
+            uiManager.copyShareUrlBtn.textContent = originalText;
+            uiManager.copyShareUrlBtn.disabled = false;
+        }, 2000);
+
+    } catch (err) {
+        console.error("Failed to copy: ", err);
+    }
+
+});
 // Favorites
 uiManager.favoriteBtn.addEventListener("click", toggleFavorite);
 uiManager.favoritesBtn.addEventListener("click", showFavoritesList);
 
-// UI Visibility Controls
-const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-
-if (isTouchDevice) {
-    // On mobile, a single tap toggles UI visibility
-    uiManager.viewerContainer.addEventListener('click', (e) => {
-        // Ensure the click is on the container/iframe and not a button
-        if ((e.target as HTMLElement).id === 'viewer-container' || (e.target as HTMLElement).id === 'viewer') {
-            const isUIActive = uiManager.viewerContainer.classList.contains('ui-active');
-            uiManager.setUIActive(!isUIActive);
-        }
-    });
-} else {
-    // On desktop, mouse movement shows the UI
-    uiManager.viewerContainer.addEventListener('mousemove', showUI);
-}
 
 // Keyboard Navigation
 function onkeyDown(e: KeyboardEvent) {

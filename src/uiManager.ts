@@ -17,9 +17,15 @@ export class UIManager {
     public favoriteBtn: HTMLButtonElement;
     public prevBtn: HTMLButtonElement;
     public nextBtn: HTMLButtonElement;
-    public randomBtn: HTMLButtonElement;
+    public shareBtn: HTMLButtonElement;
     public aboutBtn: HTMLButtonElement;
     public favoritesBtn: HTMLButtonElement;
+
+    public shareModal: HTMLDivElement;
+    public closeShareBtn: HTMLButtonElement;
+    public shareUrlInput: HTMLInputElement;
+    public copyShareUrlBtn: HTMLButtonElement;
+
 
 
     constructor() {
@@ -35,13 +41,20 @@ export class UIManager {
         this.animationFilenameEl = document.getElementById("animation-filename") as HTMLSpanElement;
         this.musicCreditEl = document.getElementById("music-credit") as HTMLDivElement;
 
+        // Share Modal
+        this.shareModal = document.getElementById("share-modal") as HTMLDivElement;
+        this.closeShareBtn = document.getElementById("closeShareBtn") as HTMLButtonElement;
+        this.shareUrlInput = document.getElementById("share-url-input") as HTMLInputElement;
+        this.copyShareUrlBtn = document.getElementById("copyShareUrlBtn") as HTMLButtonElement;
+
+
         // Favorites Page
         this.favoritesPage = new FavoritesPage()
 
         // Control buttons
         this.prevBtn = document.getElementById("prevBtn") as HTMLButtonElement;
         this.nextBtn = document.getElementById("nextBtn") as HTMLButtonElement;
-        this.randomBtn = document.getElementById("randomBtn") as HTMLButtonElement;
+        this.shareBtn = document.getElementById("shareBtn") as HTMLButtonElement;
         this.aboutBtn = document.getElementById("aboutBtn") as HTMLButtonElement;
         this.favoriteBtn = document.getElementById("favoriteBtn") as HTMLButtonElement;
         this.favoritesBtn = document.getElementById("favoritesBtn") as HTMLButtonElement;
@@ -68,7 +81,6 @@ export class UIManager {
             this.musicCreditEl.textContent = creditText;
         }
         this.aboutModal.classList.remove('hidden');
-        // this.setUIActive(false); // Hide main controls when modal is open
     }
 
     public hideAboutModal(): void {
@@ -78,6 +90,16 @@ export class UIManager {
     public isAboutModalOpen(): boolean {
         return !this.aboutModal.classList.contains('hidden');
     }
+        public showShareModal(shareUrl: string): void {
+        this.shareUrlInput.value = shareUrl;
+        this.shareModal.classList.remove('hidden');
+    }
+
+    public hideShareModal(): void {
+        this.shareModal.classList.add('hidden');
+    }
+
+
 
     public setUIActive(isActive: boolean): void {
         if (isActive) {

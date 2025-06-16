@@ -32,6 +32,17 @@
     </div>
   </div>
 
+  <div id="share-modal" class="hidden fixed inset-0 z-20 flex items-center justify-center transition-transform duration-300 ease-in-out">
+    <div class="modal-content bg-[#1e1e1e] bg-opacity-90 backdrop-blur-sm text-[#f1f1f1] p-6 rounded-lg shadow-lg relative max-w-md w-11/12">
+      <button id="closeShareBtn" title="Close" class="absolute top-2 right-2 text-3xl text-gray-400 cursor-pointer transition-colors duration-200 hover:text-white">&times;</button>
+      <h2 class="text-white text-xl mb-3">Share Animation</h2>
+      <div class="flex items-center gap-2">
+        <input type="text" id="share-url-input" class="flex-grow p-2 rounded bg-gray-700 text-white text-sm" readonly />
+        <button id="copyShareUrlBtn" class="bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 px-4 rounded">Copy</button>
+      </div>
+    </div>
+  </div>
+
   <div id="viewer-container" class="h-full w-full">
     <iframe id="viewer" src="" class="w-full h-full border-0 transition-filter duration-500 ease-in-out"></iframe>
 
@@ -61,13 +72,9 @@
           <path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
         </svg>
       </button>
-<button id="randomBtn" title="Random Animation" class="control-btn">
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shuffle">
-    <polyline points="16 3 21 3 21 8"></polyline>
-    <line x1="4" y1="20" x2="21" y2="3"></line>
-    <polyline points="21 16 21 21 16 21"></polyline>
-    <line x1="15" y1="15" x2="21" y2="21"></line>
-    <line x1="4" y1="4" x2="9" y2="9"></line>
+<button id="shareBtn" title="Share Animation" class="control-btn">
+  <svg xmlns="http://www.w3.org/2000/svg" height="28" viewBox="0 0 24 24" width="28" fill="currentColor">
+    <path d="M18 16.08c-.76 0-1.44.3-1.96.77l-7.05-4.11c.07-.22.11-.45.11-.69 0-.23-.04-.46-.11-.68l7.05-4.11c.52.47 1.2.77 1.96.77 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.11.69L7.06 9.88c-.52-.47-1.2-.77-1.96-.77-1.66 0-3 1.34-3 3s1.34 3 3 3c.76 0 1.44-.3 1.96-.77l7.05 4.11c-.07.22-.11.45-.11.69 0 1.66 1.34 3 3 3s3-1.34 3-3-1.34-3-3-3z"/>
   </svg>
 </button>
     </div>
