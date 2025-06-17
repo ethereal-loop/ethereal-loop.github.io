@@ -37,7 +37,7 @@ export class Navigation {
             this.touchStartX = 0;
             this.touchStartY = 0;
 
-            const minSwipeDistance = 50; // Minimum distance for a swipe to be registered
+            const minSwipeDistance = 20; // Minimum distance for a swipe to be registered
 
             // Determine if it's a vertical or horizontal swipe, and which direction
             if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > minSwipeDistance) {

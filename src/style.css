@@ -132,7 +132,7 @@ iframe {
   line-height: 1;
 }
 
-/* --- Favorites Page (No major changes needed) --- */
+/* --- Favorites Page --- */
 #favorites-page {
   position: fixed;
   top: 0;
@@ -197,12 +197,21 @@ iframe {
   position: relative;
   /* This creates a square container */
   width: 100%;
-  padding-bottom: 100%; /* This creates a 1:1 aspect ratio */
+  padding-bottom: 100%;
+  /* This creates a 1:1 aspect ratio */
   background: #2c2c2c;
   border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  max-width: 200px;
+  /* Cap the width to match two-row size */
+  max-height: 200px;
+  /* Cap the height to match two-row size */
+  margin: 0 auto;
+  /* Center the item in its grid cell if smaller */
+  border: 1px solid rgba(255, 255, 255, 0.2)
 }
 
 .favorite-preview-link {

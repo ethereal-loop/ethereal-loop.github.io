@@ -1,6 +1,6 @@
 import "./style.css";
 
-import { buildMusicUrl, getURL, extractDomain } from "./utils";
+import { buildMusicUrl, getURL, extractDomain, shuffle } from "./utils";
 import * as Favorites from "./favorites";
 
 import { UIManager } from "./uiManager";
@@ -66,7 +66,6 @@ async function takeScreenshot(): Promise<string | null> {
     try {
         const canvas = await html2canvas(uiManager.viewer.contentDocument!.body, {
             useCORS: true,
-            backgroundColor: null,
         });
         return canvas.toDataURL('image/jpeg', 0.8);
     } catch (error) {
@@ -181,7 +180,7 @@ async function initializeApp(): Promise<void> {
         const response = await fetch("data.json");
         const data: DataFile = await response.json();
         appState.animationMusicMap = data.animations;
-        appState.animations = Object.keys(appState.animationMusicMap);
+        appState.animations =  shuffle(Object.keys(appState.animationMusicMap));
         appState.creditsData = data.credits;
 
         const urlParams = new URLSearchParams(window.location.search);
