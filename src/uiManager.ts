@@ -94,6 +94,9 @@ export class UIManager {
         this.shareUrlInput.value = shareUrl;
         this.shareModal.classList.remove('hidden');
     }
+    public isShareModelOpen(): boolean{
+        return !this.shareModal.classList.contains('hidden');
+    }
 
     public hideShareModal(): void {
         this.shareModal.classList.add('hidden');

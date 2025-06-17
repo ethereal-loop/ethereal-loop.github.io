@@ -162,7 +162,7 @@ function showFavoritesList(): void {
             showFavoritesList();
         },
         // back
-        ()=>{
+        () => {
             audioManager.resumeMusic();
             hideFavoritesPage();
         }
@@ -188,7 +188,7 @@ async function initializeApp(): Promise<void> {
         const response = await fetch("data.json");
         const data: DataFile = await response.json();
         appState.animationMusicMap = data.animations;
-        appState.animations =  shuffle(Object.keys(appState.animationMusicMap));
+        appState.animations = shuffle(Object.keys(appState.animationMusicMap));
         appState.creditsData = data.credits;
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -221,10 +221,18 @@ uiManager.playBtn.addEventListener('click', () => {
 // Main controls
 uiManager.prevBtn.addEventListener("click", goToPreviousAnimation);
 uiManager.nextBtn.addEventListener("click", goToNextAnimation);
-uiManager.shareBtn.addEventListener("click", shareAnimation);
+uiManager.shareBtn.addEventListener("click", ()=>{
+    if (uiManager.isShareModelOpen()){uiManager.hideShareModal()}
+    else shareAnimation()
+}
+);
 
 // About Modal
-uiManager.aboutBtn.addEventListener("click", showAboutModal);
+uiManager.aboutBtn.addEventListener("click", () => {
+    if (uiManager.isAboutModalOpen()) uiManager.hideAboutModal()
+    else showAboutModal()
+}
+);
 uiManager.closeAboutBtn.addEventListener("click", () => uiManager.hideAboutModal());
 // Share Modal
 uiManager.closeShareBtn.addEventListener("click", () => uiManager.hideShareModal());
@@ -234,7 +242,7 @@ uiManager.copyShareUrlBtn.addEventListener("click", async () => {
         uiManager.shareUrlInput.setSelectionRange(0, uiManager.shareUrlInput.value.length); // Ensures mobile compatibility
 
         const successful = document.execCommand("copy");
-        if (!successful){
+        if (!successful) {
             console.error("Copy command was unsuccessful");
             return
         }
