@@ -17,7 +17,7 @@ export class FavoritesPage {
         this.grid = document.getElementById('favorites-grid')!;
         this.backBtn = document.getElementById('backFromFavoritesBtn') as HTMLButtonElement;
 
-        this.backBtn.addEventListener('click', () => this.hide());
+        // this.backBtn.addEventListener('click', () => this.hide());
     }
 
     show(favorites: FavoriteEntry[], opts: FavoritesPageOptions) {

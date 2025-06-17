@@ -163,7 +163,8 @@ function showFavoritesList(): void {
         },
         // back
         ()=>{
-            audioManager.resumeMusic()
+            audioManager.resumeMusic();
+            hideFavoritesPage();
         }
     );
 }
@@ -172,7 +173,6 @@ function showFavoritesList(): void {
 function hideFavoritesPage(): void {
     uiManager.hideFavoritesPage();
     appState.isFavoritesPageActive = false;
-    // loadCurrentAnimation();
 }
 
 /**
