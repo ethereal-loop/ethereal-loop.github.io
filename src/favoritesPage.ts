@@ -3,6 +3,7 @@ import type { FavoriteEntry } from "./favorites";
 export interface FavoritesPageOptions {
     onFavoriteClick: (animationName: string) => void;
     onFavoriteRemove: (animationName: string) => void;
+    onFavoriteBack:VoidFunction
 
 }
 
@@ -22,11 +23,9 @@ export class FavoritesPage {
     show(favorites: FavoriteEntry[], opts: FavoritesPageOptions) {
     // clear old
     this.grid.innerHTML = '';
+    this.backBtn.onclick = ()=>opts.onFavoriteBack()
 
     // Use the CSS grid instead of Tailwind classes
-    this.grid.className = 'list-none p-0 m-0 grid flex-grow';
-    this.grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(180px, 1fr))';
-    this.grid.style.gap = '20px';
 
     favorites.forEach(entry => {
         const wrapper = document.createElement('li');

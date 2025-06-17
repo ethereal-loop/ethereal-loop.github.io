@@ -64,8 +64,9 @@ function findCredit(musicName: string): { text: string; url: string | null } {
 
 async function takeScreenshot(): Promise<string | null> {
     try {
-        const canvas = await html2canvas(uiManager.viewer.contentDocument!.body, {
+        const canvas = await html2canvas(uiManager.viewer.contentDocument!.documentElement, {
             useCORS: true,
+            backgroundColor: null,
         });
         return canvas.toDataURL('image/jpeg', 0.8);
     } catch (error) {
@@ -141,6 +142,9 @@ async function toggleFavorite(): Promise<void> {
 
 function showFavoritesList(): void {
     const favorites = Favorites.getFavorites();
+    appState.isFavoritesPageActive = true;
+    audioManager.pauseMusic()
+
     uiManager.showFavoritesPage(favorites,
         // Click handler
         (animationName: string) => {
@@ -156,6 +160,10 @@ function showFavoritesList(): void {
             Favorites.removeFavorite(animationName);
             // Re-render the favorites list to show the change
             showFavoritesList();
+        },
+        // back
+        ()=>{
+            audioManager.resumeMusic()
         }
     );
 }
@@ -222,7 +230,15 @@ uiManager.closeAboutBtn.addEventListener("click", () => uiManager.hideAboutModal
 uiManager.closeShareBtn.addEventListener("click", () => uiManager.hideShareModal());
 uiManager.copyShareUrlBtn.addEventListener("click", async () => {
     try {
-        await navigator.clipboard.writeText(uiManager.shareUrlInput.value);
+        uiManager.shareUrlInput.select();
+        uiManager.shareUrlInput.setSelectionRange(0, uiManager.shareUrlInput.value.length); // Ensures mobile compatibility
+
+        const successful = document.execCommand("copy");
+        if (!successful){
+            console.error("Copy command was unsuccessful");
+            return
+        }
+
         const originalText = uiManager.copyShareUrlBtn.textContent;
         uiManager.copyShareUrlBtn.textContent = "Copied!";
         uiManager.copyShareUrlBtn.disabled = true;
@@ -257,6 +273,15 @@ function onkeyDown(e: KeyboardEvent) {
 }
 window.addEventListener('keydown', onkeyDown);
 animationManager.setupIframeKeydownListener(onkeyDown);
+
+// Pause/resume on visibility change
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+        audioManager.pauseMusic();
+    } else {
+        audioManager.resumeMusic();
+    }
+});
 
 // Swipe Navigation
 navigation.addSwipeListeners(

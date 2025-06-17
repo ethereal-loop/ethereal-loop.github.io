@@ -34,6 +34,21 @@ export class AudioManager {
         }
     }
 
+    public pauseMusic(): void {
+        if (!this.audio.paused) {
+            this.audio.pause();
+        }
+    }
+
+    /**
+     * Resumes the music if it was paused.
+     */
+    public resumeMusic(): void {
+        if (this.musicSet && this.audio.paused) {
+            this.audio.play().catch(err => console.error("Error resuming audio:", err));
+        }
+    }
+
     /**
      * Pauses the current music and clears its source.
      */

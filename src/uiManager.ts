@@ -112,9 +112,10 @@ export class UIManager {
     public showFavoritesPage(
         favorites: FavoriteEntry[],
         onFavoriteClick: (animationName: string) => void,
-        onFavoriteRemove: (animationName: string) => void
+        onFavoriteRemove: (animationName: string) => void,
+        onFavoriteBack:VoidFunction
     ): void {
-        this.favoritesPage.show(favorites,{onFavoriteClick,onFavoriteRemove})
+        this.favoritesPage.show(favorites,{onFavoriteClick,onFavoriteRemove,onFavoriteBack})
     }
 
 

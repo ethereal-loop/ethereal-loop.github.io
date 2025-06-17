@@ -189,8 +189,8 @@ iframe {
   margin: 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 20px;
-  flex-grow: 1;
+  gap: 20px 20px;
+  row-gap: 10px;
 }
 
 .favorite-item {
@@ -303,7 +303,5 @@ iframe {
     gap: 15px;
   }
 
-  .favorite-preview {
-    height: 100px;
-  }
+
 }
