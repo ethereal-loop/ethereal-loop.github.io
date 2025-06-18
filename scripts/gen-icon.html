@@ -1,0 +1,88 @@
+<!-- based on sph.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>SVG Favicon Export</title>
+  <style>
+    body {
+      margin: 0;
+      background: #fff;
+    }
+    #downloadBtn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <button id="downloadBtn">Download Favicon SVG</button>
+
+  <script>
+    const size = 100; // Viewbox units
+    const numPetals = 7;
+    const baseRadius = size * 0.3;
+    const petalAmplitude = baseRadius * 0.4;
+    const petalFrequency = 3;
+    const baseHue = 200;
+    const saturation = 80;
+    const lightness = 50;
+    const lineOpacity = 1;
+    const jitterAmount = 0;
+
+    const centerX = size / 2;
+    const centerY = size / 2;
+
+    function drawPetalPath(angle) {
+      let d = "";
+      for (let i = 0; i <= 100; i++) {
+        const theta = (i / 100) * Math.PI * 2;
+        const r = baseRadius + petalAmplitude * Math.sin(petalFrequency * theta);
+        const x = centerX + r * Math.cos(theta + angle);
+        const y = centerY + r * Math.sin(theta + angle);
+        d += (i === 0 ? "M" : "L") + x.toFixed(2) + "," + y.toFixed(2) + " ";
+      }
+      return d + "Z";
+    }
+
+    function createSVGElement() {
+      const svgNS = "http://www.w3.org/2000/svg";
+      const svg = document.createElementNS(svgNS, "svg");
+      svg.setAttribute("xmlns", svgNS);
+      svg.setAttribute("viewBox", `0 0 ${size} ${size}`);
+      svg.setAttribute("width", size);
+      svg.setAttribute("height", size);
+
+      for (let i = 0; i < numPetals; i++) {
+        const angle = (i / numPetals) * Math.PI;
+        const path = document.createElementNS(svgNS, "path");
+        path.setAttribute("d", drawPetalPath(angle));
+        path.setAttribute("fill", "none");
+        path.setAttribute("stroke", `hsla(${baseHue + i * 10}, ${saturation}%, ${lightness}%, ${lineOpacity})`);
+        path.setAttribute("stroke-width", "2");
+        svg.appendChild(path);
+      }
+
+      return svg;
+    }
+
+    const svgElement = createSVGElement();
+    document.body.appendChild(svgElement);
+
+    document.getElementById("downloadBtn").addEventListener("click", () => {
+      const clone = svgElement.cloneNode(true);
+      const serializer = new XMLSerializer();
+      const svgContent = serializer.serializeToString(clone);
+      const blob = new Blob([svgContent], { type: "image/svg+xml" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "favicon-ready.svg";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>
