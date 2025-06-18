@@ -9,91 +9,153 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 
-<body class="font-inter">
-  <div id="play-overlay" class="fixed inset-0 z-2000 flex items-center justify-center bg-black bg-opacity-30 backdrop-blur-md transition-opacity duration-500">
-    <button id="playBtn" title="Play" class="bg-transparent border-2 border-white rounded-full w-32 h-32 flex items-center justify-center text-white cursor-pointer transition-all duration-200 hover:scale-110 hover:bg-white hover:bg-opacity-10">
-      <svg xmlns="http://www.w3.org/2000/svg" height="100" viewBox="0 0 24 24" width="100" fill="currentColor" class="translate-x-[5px]">
+<body class="font-inter" style="background-color: black">
+  <div id="play-overlay"
+    class="fixed inset-0 z-2000 flex flex-col items-center justify-center bg-black bg-opacity-30 backdrop-blur-md transition-opacity duration-500">
+    <button id="playBtn" title="Play"
+      class="bg-transparent border-2 border-white rounded-full w-32 h-32 flex items-center justify-center text-white cursor-pointer transition-all duration-200 hover:scale-110 hover:bg-white hover:bg-opacity-10">
+      <svg xmlns="http://www.w3.org/2000/svg" height="100" viewBox="0 0 24 24" width="100" fill="currentColor"
+        class="translate-x-[5px]">
         <path d="M8 5v14l11-7z" />
         <path d="M0 0h24v24H0z" fill="none" />
       </svg>
     </button>
+    <p id="play-text" class="text-white text-lg mt-4">Click to Play</p>
   </div>
 
   <div id="about-modal" class="hidden fixed z-3000 transition-transform duration-300 ease-in-out">
-    <div class="modal-content bg-[#1e1e1e] bg-opacity-90 backdrop-blur-sm text-[#f1f1f1] p-6 rounded-lg shadow-lg relative">
-      <button id="closeAboutBtn" title="Close" class="absolute top-2 right-2 text-3xl text-gray-400 cursor-pointer transition-colors duration-200 hover:text-white">&times;</button>
+    <div
+      class="modal-content bg-[#1e1e1e] bg-opacity-90 backdrop-blur-sm text-[#f1f1f1] p-6 rounded-lg shadow-lg relative">
+      <button id="closeAboutBtn" title="Close"
+        class="absolute top-2 right-2 text-3xl text-gray-400 cursor-pointer transition-colors duration-200 hover:text-white">&times;</button>
       <h2 class="text-white text-xl mb-3">About This Animation</h2>
-      <p id="animation-info" class="mb-3 leading-relaxed text-sm">
-        File: <span id="animation-filename" class="font-semibold"></span>
-      </p>
-      <div id="music-credit" class="leading-relaxed text-sm">
+      <div class="flex items-center gap-2 mb-3">
+        <p id="animation-info" class="leading-relaxed text-sm">
+          File: <span id="animation-filename" class="font-semibold"></span>
+        </p>
+        <div id="filename-tooltip-container" class="relative flex items-center">
+          <svg id="filename-tooltip-icon" xmlns="http://www.w3.org/2000/svg" height="18" viewBox="0 0 24 24" width="18"
+            fill="currentColor" class="cursor-help text-gray-400">
+            <path d="M0 0h24v24H0z" fill="none" />
+            <path
+              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z" />
+          </svg>
+          <div id="filename-tooltip-text"
+            class="absolute bottom-full mb-2 w-max max-w-xs bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 pointer-events-none transition-opacity duration-300">
+            The filename is an encoded version of a random English term.
+          </div>
         </div>
+      </div>
+      <div id="music-credit" class="leading-relaxed text-sm mb-3"></div>
+      <p class="text-xs text-gray-400 mb-3">
+        This animation is free to use for personal and commercial projects under the
+        <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer"
+          class="underline">Creative Commons Attribution 4.0 International License</a>.
+      </p>
+      <a href="https://github.com/Ethereal-loop/Ethereal-data/issues" id="bug-report-link"
+        class="text-sm text-blue-400 hover:underline">Report a bug with this animation/music</a>
     </div>
   </div>
 
-  <div id="share-modal" class="hidden fixed inset-0 z-20 flex items-center justify-center transition-transform duration-300 ease-in-out">
-    <div class="modal-content bg-[#1e1e1e] bg-opacity-90 backdrop-blur-sm text-[#f1f1f1] p-6 rounded-lg shadow-lg relative max-w-md w-11/12">
-      <button id="closeShareBtn" title="Close" class="absolute top-2 right-2 text-3xl text-gray-400 cursor-pointer transition-colors duration-200 hover:text-white">&times;</button>
+  <div id="share-modal"
+    class="hidden fixed inset-0 z-4000 flex items-center justify-center transition-transform duration-300 ease-in-out">
+    <div
+      class="modal-content bg-[#1e1e1e] bg-opacity-90 backdrop-blur-sm text-[#f1f1f1] p-6 rounded-lg shadow-lg relative max-w-md w-11/12">
+      <button id="closeShareBtn" title="Close"
+        class="absolute top-2 right-2 text-3xl text-gray-400 cursor-pointer transition-colors duration-200 hover:text-white">&times;</button>
       <h2 class="text-white text-xl mb-3">Share Animation</h2>
       <div class="flex items-center gap-2">
         <input type="text" id="share-url-input" class="flex-grow p-2 rounded bg-gray-700 text-white text-sm" readonly />
-        <button id="copyShareUrlBtn" class="bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 px-4 rounded">Copy</button>
+        <button id="copyShareUrlBtn"
+          class="bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 px-4 rounded">Copy</button>
       </div>
     </div>
   </div>
 
+  <div id="about-site-modal"
+    class="hidden fixed inset-0 z-5000 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="bg-[#1e1e1e] text-white p-6 rounded-lg shadow-lg max-w-md w-11/12 relative">
+      <button id="closeAboutSiteBtn" class="absolute top-2 right-2 text-3xl">&times;</button>
+      <h2 class="text-2xl mb-4">About This Site</h2>
+      <p class="mb-4">This website is an open source website to show cool ai-generated animations.</p>
+      <a href="https://github.com/Ethereal-loop" target="_blank" rel="noopener noreferrer"
+        class="text-blue-400 hover:underline">View Source Code on GitHub</a>
+    </div>
+  </div>
+
   <div id="viewer-container" class="h-full w-full">
-    <iframe id="viewer" src="" class="w-full h-full border-0 transition-filter duration-500 ease-in-out"></iframe>
+    <iframe id="viewer" src="about:blank" class="w-full h-full border-0 transition-filter duration-500 ease-in-out"></iframe>
+
+    <button id="aboutSiteBtn" title="About This Site" class="control-btn fixed top-5 left-5 z-1000">
+      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+        <path
+          d="m384-334 96-74 96 74-36-122 90-64H518l-38-124-38 124H330l90 64-36 122ZM233-120l93-304L80-600h304l96-320 96 320h304L634-424l93 304-247-188-247 188Zm247-369Z" />
+      </svg>
+    </button>
+
+    <div id="swipe-indicator"
+      class="hidden md:hidden fixed bottom-20 left-1/2 -translate-x-1/2 z-1000 text-white p-2 rounded-lg bg-black bg-opacity-50">
+      Swipe up or down
+    </div>
+    <div id="desktop-indicator"
+      class="hidden fixed bottom-20 left-1/2 -translate-x-1/2 z-1000 text-white p-2 rounded-lg bg-black bg-opacity-50 md:block">
+      Use Arrow Keys or Scroll
+    </div>
 
     <div id="bottom-nav" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-1000 flex gap-4">
       <button id="prevBtn" title="Previous (Up Arrow)" class="control-btn">
         <svg xmlns="http://www.w3.org/2000/svg" height="28" viewBox="0 0 24 24" width="28" fill="currentColor">
-          <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
+          <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z" />
         </svg>
       </button>
       <button id="nextBtn" title="Next (Down Arrow)" class="control-btn">
         <svg xmlns="http://www.w3.org/2000/svg" height="28" viewBox="0 0 24 24" width="28" fill="currentColor">
-          <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/>
+          <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z" />
         </svg>
       </button>
     </div>
 
     <div id="right-actions" class="fixed right-5 top-1/2 -translate-y-1/2 z-1000 flex flex-col gap-4">
-       <button id="favoriteBtn" title="Toggle Favorite" class="control-btn">
-        </button>
+      <button id="favoriteBtn" title="Toggle Favorite" class="control-btn">
+      </button>
       <button id="favoritesBtn" title="Show Favorites" class="control-btn">
         <svg xmlns="http://www.w3.org/2000/svg" height="28" viewBox="0 0 24 24" width="28" fill="currentColor">
-          <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2zm0 15l-5-2.18L7 18V5h10v13z"/>
+          <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2zm0 15l-5-2.18L7 18V5h10v13z" />
         </svg>
       </button>
       <button id="aboutBtn" title="About This Animation" class="control-btn">
         <svg xmlns="http://www.w3.org/2000/svg" height="28" viewBox="0 0 24 24" width="28" fill="currentColor">
-          <path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+          <path
+            d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
         </svg>
       </button>
-<button id="shareBtn" title="Share Animation" class="control-btn">
-  <svg xmlns="http://www.w3.org/2000/svg" height="28" viewBox="0 0 24 24" width="28" fill="currentColor">
-    <path d="M18 16.08c-.76 0-1.44.3-1.96.77l-7.05-4.11c.07-.22.11-.45.11-.69 0-.23-.04-.46-.11-.68l7.05-4.11c.52.47 1.2.77 1.96.77 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.11.69L7.06 9.88c-.52-.47-1.2-.77-1.96-.77-1.66 0-3 1.34-3 3s1.34 3 3 3c.76 0 1.44-.3 1.96-.77l7.05 4.11c-.07.22-.11.45-.11.69 0 1.66 1.34 3 3 3s3-1.34 3-3-1.34-3-3-3z"/>
-  </svg>
-</button>
+      <button id="shareBtn" title="Share Animation" class="control-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" height="28" viewBox="0 0 24 24" width="28" fill="currentColor">
+          <path
+            d="M18 16.08c-.76 0-1.44.3-1.96.77l-7.05-4.11c.07-.22.11-.45.11-.69 0-.23-.04-.46-.11-.68l7.05-4.11c.52.47 1.2.77 1.96.77 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.11.69L7.06 9.88c-.52-.47-1.2-.77-1.96-.77-1.66 0-3 1.34-3 3s1.34 3 3 3c.76 0 1.44-.3 1.96-.77l7.05 4.11c-.07.22-.11.45-.11.69 0 1.66 1.34 3 3 3s3-1.34 3-3-1.34-3-3-3z" />
+        </svg>
+      </button>
     </div>
   </div>
 
-    <div id="favorites-page" class="fixed inset-0 z-2500 flex flex-col p-5 overflow-y-auto hidden">
+  <div id="favorites-page" class="fixed inset-0 z-2500 flex flex-col p-5 overflow-y-auto hidden">
     <div class="favorites-header flex items-center gap-5 mb-5 pb-4 border-b border-gray-700">
-      <button id="backFromFavoritesBtn" class="bg-transparent border-none text-white cursor-pointer text-lg flex items-center gap-1.5 transition-colors duration-200 p-2 rounded-md hover:text-blue-300 hover:bg-gray-800">
-          <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="currentColor" class="align-middle">
-              <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-          </svg>
-          Back
+      <button id="backFromFavoritesBtn"
+        class="bg-transparent border-none text-white cursor-pointer text-lg flex items-center gap-1.5 transition-colors duration-200 p-2 rounded-md hover:text-blue-300 hover:bg-gray-800">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="currentColor"
+          class="align-middle">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+        </svg>
+        Back
       </button>
       <h2 class="m-0 text-white text-3xl font-semibold">Your Favorites</h2>
     </div>
     <ul id="favorites-grid">
-      </ul>
+    </ul>
   </div>
 
 
   <script type="module" src="src/main.ts"></script>
 </body>
+
 </html>

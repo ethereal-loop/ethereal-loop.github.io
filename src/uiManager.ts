@@ -11,6 +11,11 @@ export class UIManager {
     public closeAboutBtn: HTMLButtonElement;
     public animationFilenameEl: HTMLSpanElement;
     public musicCreditEl: HTMLDivElement;
+    public bugReportLink: HTMLAnchorElement;
+
+    public aboutSiteModal: HTMLDivElement;
+    public closeAboutSiteBtn: HTMLButtonElement;
+    public aboutSiteBtn: HTMLButtonElement;
 
     public favoritesPage: FavoritesPage;
 
@@ -26,8 +31,6 @@ export class UIManager {
     public shareUrlInput: HTMLInputElement;
     public copyShareUrlBtn: HTMLButtonElement;
 
-
-
     constructor() {
         // Main elements
         this.viewerContainer = document.getElementById("viewer-container") as HTMLDivElement;
@@ -40,6 +43,13 @@ export class UIManager {
         this.closeAboutBtn = document.getElementById("closeAboutBtn") as HTMLButtonElement;
         this.animationFilenameEl = document.getElementById("animation-filename") as HTMLSpanElement;
         this.musicCreditEl = document.getElementById("music-credit") as HTMLDivElement;
+        this.bugReportLink = document.getElementById("bug-report-link") as HTMLAnchorElement;
+
+        // About Site Modal
+        this.aboutSiteModal = document.getElementById("about-site-modal") as HTMLDivElement;
+        this.closeAboutSiteBtn = document.getElementById("closeAboutSiteBtn") as HTMLButtonElement;
+        this.aboutSiteBtn = document.getElementById("aboutSiteBtn") as HTMLButtonElement;
+
 
         // Share Modal
         this.shareModal = document.getElementById("share-modal") as HTMLDivElement;
@@ -102,7 +112,17 @@ export class UIManager {
         this.shareModal.classList.add('hidden');
     }
 
+    public showAboutSiteModal(): void {
+        this.aboutSiteModal.classList.remove('hidden');
+    }
 
+    public hideAboutSiteModal(): void {
+        this.aboutSiteModal.classList.add('hidden');
+    }
+
+    public isAboutSiteModalOpen(): boolean {
+        return !this.aboutSiteModal.classList.contains('hidden');
+    }
 
     public setUIActive(isActive: boolean): void {
         if (isActive) {

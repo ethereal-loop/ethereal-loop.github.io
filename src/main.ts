@@ -200,6 +200,23 @@ async function initializeApp(): Promise<void> {
 
         uiManager.viewer.style.filter = 'blur(8px)';
         loadCurrentAnimation();
+
+        // Show navigation indicators # FIXME: timeout when blur
+        const swipeIndicator = document.getElementById('swipe-indicator')!;
+        const desktopIndicator = document.getElementById('desktop-indicator')!;
+
+        const isMobile = window.innerWidth <= 768;
+
+        if (isMobile) {
+            swipeIndicator.classList.remove('hidden');
+        } else {
+            desktopIndicator.classList.remove('hidden');
+        }
+        setTimeout(() => {
+            swipeIndicator.classList.add('hidden');
+            desktopIndicator.classList.add('hidden');
+        }, 3000); // Hide after 3 seconds
+
     } catch (error) {
         console.error("Failed to load or parse data.json:", error);
     }
@@ -221,8 +238,8 @@ uiManager.playBtn.addEventListener('click', () => {
 // Main controls
 uiManager.prevBtn.addEventListener("click", goToPreviousAnimation);
 uiManager.nextBtn.addEventListener("click", goToNextAnimation);
-uiManager.shareBtn.addEventListener("click", ()=>{
-    if (uiManager.isShareModelOpen()){uiManager.hideShareModal()}
+uiManager.shareBtn.addEventListener("click", () => {
+    if (uiManager.isShareModelOpen()) { uiManager.hideShareModal() }
     else shareAnimation()
 }
 );
@@ -234,6 +251,18 @@ uiManager.aboutBtn.addEventListener("click", () => {
 }
 );
 uiManager.closeAboutBtn.addEventListener("click", () => uiManager.hideAboutModal());
+
+// About Site Modal
+uiManager.aboutSiteBtn.addEventListener('click', () => {
+    if (uiManager.isAboutSiteModalOpen()) {
+        uiManager.hideAboutSiteModal();
+    } else {
+        uiManager.showAboutSiteModal();
+    }
+});
+uiManager.closeAboutSiteBtn.addEventListener('click', () => uiManager.hideAboutSiteModal());
+
+
 // Share Modal
 uiManager.closeShareBtn.addEventListener("click", () => uiManager.hideShareModal());
 uiManager.copyShareUrlBtn.addEventListener("click", async () => {
@@ -271,8 +300,9 @@ function onkeyDown(e: KeyboardEvent) {
     if (e.key === "Escape") {
         if (uiManager.isAboutModalOpen()) return uiManager.hideAboutModal();
         if (uiManager.isFavoritesPageOpen()) return hideFavoritesPage();
+        if (uiManager.isAboutSiteModalOpen()) return uiManager.hideAboutSiteModal();
     }
-    const isOverlayOpen = uiManager.isAboutModalOpen() || uiManager.isFavoritesPageOpen();
+    const isOverlayOpen = uiManager.isAboutModalOpen() || uiManager.isFavoritesPageOpen() || uiManager.isAboutSiteModalOpen();
     if (!isOverlayOpen) {
         if (e.key === "ArrowUp") goToPreviousAnimation();
         if (e.key === "ArrowDown") goToNextAnimation();
