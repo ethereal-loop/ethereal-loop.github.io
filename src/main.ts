@@ -11,6 +11,7 @@ import html2canvas from "html2canvas";
 
 // --- Interfaces ---
 interface CreditEntry {
+    license: string | undefined;
     credit: string;
     tracks: string[];
 }
@@ -53,13 +54,13 @@ function findCredit(musicName: string): { text: string; url: string | null } {
         for (const entry of appState.creditsData[source]) {
             if (entry.tracks.includes(musicName)) {
                 return {
-                    text: `Music by ${entry.credit} from ${extractDomain(source)}.`,
+                    text: `Music by ${entry.credit} from ${extractDomain(source)}.${entry.license? `(License:${entry.license})` : ''}`,
                     url: getURL(musicName, source)
                 };
             }
         }
     }
-    return { text: `Music: "${musicName}" (credit not found).`, url: null };
+    return { text: `Music: "${musicName}" (Error: credit not found).`, url: null };
 }
 
 async function takeScreenshot(): Promise<string | null> {
