@@ -10,5 +10,6 @@ Ethereal have 3 components:
 2. Ethereal Data: store cool animations, mostly from that generator
 3. Ethereal Loop (this repo): a website to display all of those.
 
+## how the site works
 
 This repo is licensed under AGPL v3

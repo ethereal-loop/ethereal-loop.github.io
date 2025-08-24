@@ -9,7 +9,7 @@ export class UIManager {
     public playBtn: HTMLButtonElement;
     public aboutModal: HTMLDivElement;
     public closeAboutBtn: HTMLButtonElement;
-    public animationFilenameEl: HTMLSpanElement;
+    public animationFilenameEl: HTMLAnchorElement;
     public musicCreditEl: HTMLDivElement;
     public bugReportLink: HTMLAnchorElement;
 
@@ -41,7 +41,7 @@ export class UIManager {
         // About Modal
         this.aboutModal = document.getElementById("about-modal") as HTMLDivElement;
         this.closeAboutBtn = document.getElementById("closeAboutBtn") as HTMLButtonElement;
-        this.animationFilenameEl = document.getElementById("animation-filename") as HTMLSpanElement;
+        this.animationFilenameEl = document.getElementById("animation-filename") as HTMLAnchorElement;
         this.musicCreditEl = document.getElementById("music-credit") as HTMLDivElement;
         this.bugReportLink = document.getElementById("bug-report-link") as HTMLAnchorElement;
 
@@ -77,6 +77,7 @@ export class UIManager {
 
     public showAboutModal(filename: string, creditText: string, creditUrl: string | null): void {
         this.animationFilenameEl.textContent = `${filename}.html`;
+        this.animationFilenameEl.href = `https://github.com/ethereal-loop/Ethereal-data/blob/main/data/${filename}.html`;
         this.musicCreditEl.innerHTML = '';
 
         if (creditUrl) {

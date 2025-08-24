@@ -21,6 +21,9 @@
       </svg>
     </button>
     <p id="play-text" class="text-white text-lg mt-4">Click to Play</p>
+    <p class="text-gray-300 text-sm mt-2 max-w-md text-center px-4">
+Explore cool and relaxing (mostly) AI-generated animations
+</p>
   </div>
 
   <div id="about-modal" class="hidden fixed z-3000 transition-transform duration-300 ease-in-out">
@@ -31,7 +34,7 @@
       <h2 class="text-white text-xl mb-3">About This Animation</h2>
       <div class="flex items-center gap-2 mb-3">
         <p id="animation-info" class="leading-relaxed text-sm">
-          File: <span id="animation-filename" class="font-semibold"></span>
+          File: <a id="animation-filename" class="font-semibold underline"></a>
         </p>
         <div id="filename-tooltip-container" class="relative flex items-center">
           <svg id="filename-tooltip-icon" xmlns="http://www.w3.org/2000/svg" height="18" viewBox="0 0 24 24" width="18"
